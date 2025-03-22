@@ -79,14 +79,12 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'pickupdatabase',
-        'USER': 'your_username',  # Your PostgreSQL username (often your system username by default)
-        'PASSWORD': 'your_password',  # Leave blank if you didn’t set one
-        'HOST': 'localhost',
+        'USER': 'postgres',  # Your PostgreSQL username (often your system username by default) -->postgres
+        'PASSWORD': 'cpsc419',  # Leave blank if you didn’t set one --> cpsc419
+        'HOST': '172.27.139.1',
         'PORT': '5432',  # Default PostgreSQL port
     }
 }
-
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
