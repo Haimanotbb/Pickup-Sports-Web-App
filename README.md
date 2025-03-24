@@ -10,4 +10,7 @@
 - ran python manage.py startapp scheduler to start the app within the Django project. Name of the App within the Django project is scheduler
 - Django needs psycopg2 to talk to PostgreSQL. Installed psycopg2
 
+##Superuser username: DHL
+password: dhlcs419
+
 
