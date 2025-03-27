@@ -89,7 +89,7 @@ DATABASES = {
         'NAME': 'pickupdatabase',
         'USER': 'postgres',  # Your PostgreSQL username (often your system username by default) -->postgres
         'PASSWORD': 'cpsc419',  # Leave blank if you didn’t set one --> cpsc419
-        'HOST': '172.27.139.1',
+        'HOST': '10.66.131.17',
         'PORT': '5432',  # Default PostgreSQL port
     }
 }

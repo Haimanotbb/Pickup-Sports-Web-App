@@ -75,10 +75,11 @@ class Participant(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
+        related_name='participations'
     )
     game = models.ForeignKey(
         Game,
-        on_delete=models.CASCADE,
+        on_delete=models.CASCADE, related_name='participant_set'
     )
 
     def __str__(self):

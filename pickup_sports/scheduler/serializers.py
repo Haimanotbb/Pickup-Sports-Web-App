@@ -22,14 +22,14 @@ class ParticipantSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Participant
-        fields = ['id', 'user', 'game']
-        read_only_fields = ['id', 'game']  # game is set via the relationship
+        fields = ['id', 'user']
+        read_only_fields = ['id']  # game is set via the relationship
 
 # Serializer for Game
 class GameSerializer(serializers.ModelSerializer):
     creator = CustomUserSerializer(read_only=True)  # Nested creator details
     sport = SportSerializer(read_only=True)  # Nested sport details
-    participants = ParticipantSerializer(many=True, read_only=True)  # Nested list of participants
+    participants = ParticipantSerializer(source='participant_set',many=True, read_only=True)  # Nested list of participants
 
     class Meta:
         model = Game

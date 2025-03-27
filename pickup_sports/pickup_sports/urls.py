@@ -16,14 +16,9 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path
-from . import views
+from django.urls import path, include
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path('api/games/', views.game_list, name='game_list'),
-    path('api/games/create/', views.game_create, name='game_create'),
-    path('api/games/<int:pk>/', views.game_detail, name='game_detail'),
-    path('api/games/<int:pk>/update/', views.game_update, name='game_update'),
-    path('api/games/<int:pk>/delete/', views.game_delete, name='game_delete'),
+    path("api/", include('scheduler.urls'))
 ]
