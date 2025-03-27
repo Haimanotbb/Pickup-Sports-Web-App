@@ -30,9 +30,12 @@ class GameSerializer(serializers.ModelSerializer):
     creator = CustomUserSerializer(read_only=True)  # Nested creator details
     sport = SportSerializer(read_only=True)  # Nested sport details
     participants = ParticipantSerializer(source='participant_set',many=True, read_only=True)  # Nested list of participants
+    sport_id = serializers.PrimaryKeyRelatedField(
+        queryset=Sport.objects.all(), source='sport', write_only=True
+    )
 
     class Meta:
         model = Game
         fields = ['id', 'creator', 'location', 'participants', 'start_time', 'end_time', 
-                  'status', 'skill_level', 'sport']
-        read_only_fields = ['id', 'creator', 'participants']  # Auto-set fields
+                  'status', 'skill_level', 'sport', 'sport_id']
+        read_only_fields = ['id', 'creator', 'participants', 'sport']  # Auto-set fields
