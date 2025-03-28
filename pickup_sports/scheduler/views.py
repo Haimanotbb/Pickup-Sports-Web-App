@@ -1,11 +1,38 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, get_user_model
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from .models import Game, Participant, Sport
 from .serializers import GameSerializer, SportSerializer, ParticipantSerializer
+
+#Sign Up
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def signup_user(request):
+    email = request.data.get('email')
+    password = request.data.get('password')
+    name = request.data.get('name', '')  
+
+    # Check if user already exists
+    User = get_user_model()
+    if User.objects.filter(email=email).exists():
+        return Response({"error": "User with this email already exists."},
+                        status=status.HTTP_400_BAD_REQUEST)
+
+    # Create the user
+    user = User.objects.create_user(
+        username=email,  
+        email=email,
+        password=password,
+        name=name
+    )
+
+    # Generate token
+    token, _ = Token.objects.get_or_create(user=user)
+    return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+
 
 # Login to get a token (POST /api/login/)
 @api_view(['POST'])
