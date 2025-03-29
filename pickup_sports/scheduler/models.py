@@ -1,5 +1,3 @@
-
-# Create your models here.
 from django.db import models
 from django.conf import settings
 
@@ -8,10 +6,7 @@ from django.contrib.auth.models import AbstractUser
 
 
 class CustomUser(AbstractUser):
-    # Remove or repurpose the username field if you want to use email as the unique identifier.
     email = models.EmailField('email address', unique=True)
-    # You can add additional fields if necessary.
-    # For instance, if you want a "name" field separate from first/last names:
     name = models.CharField(max_length=100, blank=True)
 
     def __str__(self):
@@ -87,5 +82,3 @@ class Participant(models.Model):
     
     class Meta:
         unique_together = ('user', 'game')
-
-        # This enforces the PRIMARY KEY constraint from the SQL schema
