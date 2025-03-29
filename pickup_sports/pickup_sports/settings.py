@@ -11,7 +11,10 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+from dotenv import load_dotenv
 
+import dj_database_url
+import os
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -29,7 +32,6 @@ DEBUG = True
 ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'scheduler.CustomUser'
-
 
 
 # Application definition
@@ -92,17 +94,28 @@ WSGI_APPLICATION = "pickup_sports.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
+load_dotenv()
 
+# Parse DATABASE_URL from environment variables
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'pickupdatabase',
-        'USER': 'postgres',  # Your PostgreSQL username (often your system username by default) -->postgres
-        'PASSWORD': 'cpsc419',  # Leave blank if you didn’t set one --> cpsc419
-        'HOST': '10.74.42.29',
-        'PORT': '5432',  # Default PostgreSQL port
-    }
+    'default': dj_database_url.config(
+        default=os.getenv('DATABASE_URL'),
+        conn_max_age=600,
+        ssl_require=True
+    )
 }
+
+# DATABASES = {
+#     'default': {
+#         'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'pickupdatabase',
+#         # Your PostgreSQL username (often your system username by default) -->postgres
+#         'USER': 'postgres',
+#         'PASSWORD': 'cpsc419',  # Leave blank if you didn’t set one --> cpsc419
+#         'HOST': '10.66.131.17',
+#         'PORT': '5432',  # Default PostgreSQL port
+#     }
+# }
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 

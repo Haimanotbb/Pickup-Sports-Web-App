@@ -25,6 +25,13 @@ const Games = () => {
       }
     };
     fetchGames();
+
+    const intervalId = setInterval(() => {
+      fetchGames();
+    }, 5000);
+
+    return () => clearInterval(intervalId);
+
   }, []);
 
   const handleJoin = async (gameId) => {
@@ -47,8 +54,8 @@ const Games = () => {
             <Link to={`/games/${game.id}`}>
               {game.sport.name} at {game.location} on {new Date(game.start_time).toLocaleString()}
             </Link>
-            <button 
-              className="btn btn-primary ms-3" 
+            <button
+              className="btn btn-primary ms-3"
               onClick={() => handleJoin(game.id)}
             >
               Join
