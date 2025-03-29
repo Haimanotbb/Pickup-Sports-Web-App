@@ -60,7 +60,10 @@ Follow these steps to set up and test the Minimum Viable Product (MVP) locally.
 1.⁠ ⁠Open a terminal and navigate to the project root directory.
 2.⁠ ⁠Install the required Python dependencies: pip install -r requirements.txt
 3. cd pickup_sports
-4. Run python manage.py runserver
+4. Run python manage.py runserver 
+
+### NOTE:
+If step 4 is not working please call us at 470-923-1554 to get new ip address. After receiving ip address navigate to settings.py in the pickup_sports folder and change the hostname address in the "Databases" object.
 
 ### Step 2: Set Up and Run Frontend 
 1. cd frontend_pickup_sports

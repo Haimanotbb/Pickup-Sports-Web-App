@@ -97,25 +97,24 @@ WSGI_APPLICATION = "pickup_sports.wsgi.application"
 load_dotenv()
 
 # Parse DATABASE_URL from environment variables
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.getenv('DATABASE_URL'),
-        conn_max_age=600,
-        ssl_require=True
-    )
-}
-
 # DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.postgresql',
-#         'NAME': 'pickupdatabase',
-#         # Your PostgreSQL username (often your system username by default) -->postgres
-#         'USER': 'postgres',
-#         'PASSWORD': 'cpsc419',  # Leave blank if you didn’t set one --> cpsc419
-#         'HOST': '10.66.131.17',
-#         'PORT': '5432',  # Default PostgreSQL port
-#     }
+#     'default': dj_database_url.config(
+#         default=os.getenv('DATABASE_URL'),
+#         conn_max_age=600,
+#         ssl_require=True
+#     )
 # }
+
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'pickupdatabase',
+        'USER': 'postgres',
+        'PASSWORD': 'cpsc419',
+        'HOST': '10.66.131.17',
+        'PORT': '5432',
+    }
+}
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
