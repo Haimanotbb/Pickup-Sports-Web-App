@@ -6,8 +6,8 @@ from django.conf import settings
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
-        fields = ['id', 'name', 'email']  # Include fields you want in API
-        read_only_fields = ['id']  # id is auto-generated, read-only
+        fields = ['id', 'name', 'email']  
+        read_only_fields = ['id'] 
 
 # Serializer for Sport
 class SportSerializer(serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
     class Meta:
         model = Participant
         fields = ['id', 'user']
-        read_only_fields = ['id']  # game is set via the relationship
+        read_only_fields = ['id'] 
 
 # Serializer for Game
 class GameSerializer(serializers.ModelSerializer):
