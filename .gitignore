@@ -1,3 +1,4 @@
 cpsc419/
 __pycache__/
 *.pyc
+node_modules/
