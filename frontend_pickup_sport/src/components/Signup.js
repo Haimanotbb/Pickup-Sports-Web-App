@@ -20,7 +20,7 @@ const Signup = () => {
     try {
       const response = await API.post('signup/', formData);
       localStorage.setItem('token', response.data.token);
-      navigate('/games');  // go to the games page after signup
+      navigate('/profile/setup');  // go to the games page after signup
     } catch (err) {
       setError('Failed to sign up. Maybe email is taken?');
     }

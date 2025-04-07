@@ -5,7 +5,44 @@ from django.contrib.auth import authenticate, get_user_model
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from .models import Game, Participant, Sport
-from .serializers import GameSerializer, SportSerializer, ParticipantSerializer
+from .serializers import GameSerializer, SportSerializer, ParticipantSerializer, CustomUserProfileUpdateSerializer, UserProfileSerializer
+
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def public_profile(request, id):
+    User = get_user_model()
+    try:
+        user = User.objects.get(pk=id)
+    except User.DoesNotExist:
+        return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
+    serializer = UserProfileSerializer(user)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+#Get user profile 
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def profile_detail(request):
+    """
+    Retrieve the authenticated user's profile
+    """
+    serializer = UserProfileSerializer(request.user)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+
+@api_view(['PUT', 'PATCH'])
+@permission_classes([IsAuthenticated])
+def profile_update(request):
+    """
+    Update the authenticated user's profile
+    """
+
+    serializer = CustomUserProfileUpdateSerializer(request.user, data=request.data, partial=True)
+    if serializer.is_valid():
+        serializer.save()
+
+        full_serializer = UserProfileSerializer(request.user)
+        return Response(full_serializer.data, status=status.HTTP_200_OK)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 #Sign Up
 @api_view(['POST'])

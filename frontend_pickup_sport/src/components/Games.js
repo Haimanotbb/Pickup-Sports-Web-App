@@ -7,14 +7,6 @@ const Games = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Ensure user is logged in
-  useEffect(() => {
-    if (!localStorage.getItem('token')) {
-      navigate('/login');
-    }
-  }, [navigate]);
-
-  // Fetch games from the backend
   useEffect(() => {
     const fetchGames = async () => {
       try {
@@ -25,32 +17,32 @@ const Games = () => {
       }
     };
     fetchGames();
-
-    const intervalId = setInterval(() => {
-      fetchGames();
-    }, 5000);
-
-    return () => clearInterval(intervalId);
-
   }, []);
 
   const handleJoin = async (gameId) => {
     try {
       await API.post(`games/${gameId}/join/`);
       alert('Successfully joined the game!');
+      // Optionally refetch games here to update UI
     } catch (err) {
-      const serverError = err.response?.data?.error || 'Failed to join the game.';
-      setError(serverError);
+      setError('Failed to join the game.');
     }
   };
 
   return (
     <div className="container mt-4">
-      <h2>Games</h2>
+      <div className="d-flex justify-content-end mb-3">
+        <Link to="/profile" className="btn btn-secondary">
+          My Profile
+        </Link>
+      </div>
+
       {error && <div className="alert alert-danger">{error}</div>}
+
       <ul className="list-group">
         {games.map((game) => (
           <li key={game.id} className="list-group-item">
+            {/* Example: link to game detail, plus a Join button */}
             <Link to={`/games/${game.id}`}>
               {game.sport.name} at {game.location} on {new Date(game.start_time).toLocaleString()}
             </Link>
@@ -63,8 +55,11 @@ const Games = () => {
           </li>
         ))}
       </ul>
+
       <div className="mt-3">
-        <Link to="/create-game" className="btn btn-success">Create New Game</Link>
+        <Link to="/create-game" className="btn btn-success">
+          Create New Game
+        </Link>
       </div>
     </div>
   );

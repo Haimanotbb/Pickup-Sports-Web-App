@@ -16,6 +16,25 @@ class SportSerializer(serializers.ModelSerializer):
         fields = ['id', 'name']
         read_only_fields = ['id']
 
+# Serializer for updating user profiles
+class CustomUserProfileUpdateSerializer(serializers.ModelSerializer):
+    favorite_sports = serializers.PrimaryKeyRelatedField(
+        queryset=Sport.objects.all(),
+        many=True,
+        required=False
+    )
+    class Meta:
+        model = CustomUser
+        fields = ['name', 'bio', 'favorite_sports']
+
+    
+# Serializer for User Profile
+class UserProfileSerializer(serializers.ModelSerializer):
+    favorite_sports = SportSerializer(many=True, read_only=True)
+    class Meta:
+        model = CustomUser
+        fields = ['id', 'email', 'name', 'bio', 'favorite_sports']
+
 # Serializer for Participant (junction table)
 class ParticipantSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True)  # Nested user details

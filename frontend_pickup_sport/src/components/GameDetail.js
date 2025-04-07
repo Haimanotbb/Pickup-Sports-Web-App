@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import API from '../api/api';
-
 
 const GameDetail = () => {
   const { id } = useParams();
@@ -18,17 +17,14 @@ const GameDetail = () => {
       }
     };
     fetchGame();
-
-    const intervalId = setInterval(() => {
-      fetchGame();
-    }, 5000);
-
-    return () => clearInterval(intervalId);
-
   }, [id]);
 
   if (error) {
-    return <div className="container mt-4"><div className="alert alert-danger">{error}</div></div>;
+    return (
+      <div className="container mt-4">
+        <div className="alert alert-danger">{error}</div>
+      </div>
+    );
   }
   if (!game) {
     return <div className="container mt-4">Loading...</div>;
@@ -38,26 +34,32 @@ const GameDetail = () => {
     <div className="container mt-4">
       <h2>Game Detail</h2>
       <p><strong>Sport:</strong> {game.sport.name}</p>
-      <p><strong>Creator:</strong> {game.creator.name || ''} ({game.creator.email})</p>
       <p><strong>Location:</strong> {game.location}</p>
-      <p><strong>Start Time:</strong> {new Date(game.start_time).toLocaleString()}</p>
-      <p><strong>End Time:</strong> {new Date(game.end_time).toLocaleString()}</p>
+      <p>
+        <strong>Start Time:</strong> {new Date(game.start_time).toLocaleString()}
+      </p>
+      <p>
+        <strong>End Time:</strong> {new Date(game.end_time).toLocaleString()}
+      </p>
       <p><strong>Status:</strong> {game.status}</p>
       <p><strong>Skill Level:</strong> {game.skill_level}</p>
-      <div>
-        <strong>Participants:</strong>
-        {game.participants.length > 0 ? (
-          <ul>
+      
+      {game.participants && game.participants.length > 0 ? (
+        <div>
+          <h4>Participants:</h4>
+          <ul className="list-group">
             {game.participants.map((participant) => (
-              <li key={participant.id}>
-                {participant.user.name || ''} ({participant.user.email})
+              <li key={participant.id} className="list-group-item">
+                <Link to={`/profile/${participant.user.id}`}>
+                  {participant.user.name}
+                </Link>
               </li>
             ))}
           </ul>
-        ) : (
-          <p>No participants yet.</p>
-        )}
-      </div>
+        </div>
+      ) : (
+        <p>No participants yet.</p>
+      )}
     </div>
   );
 };
