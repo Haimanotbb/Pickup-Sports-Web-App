@@ -57,4 +57,4 @@ class GameSerializer(serializers.ModelSerializer):
         model = Game
         fields = ['id', 'creator', 'location', 'participants', 'start_time', 'end_time', 
                   'status', 'skill_level', 'sport', 'sport_id']
-        read_only_fields = ['id', 'creator', 'participants', 'sport']  # Auto-set fields
+        read_only_fields = ['id', 'creator', 'participants', 'sport'] 
