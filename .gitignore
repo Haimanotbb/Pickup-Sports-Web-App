@@ -2,3 +2,7 @@ cpsc419/
 __pycache__/
 *.pyc
 node_modules/
+
+
+
+pickup_sports/pickup_sports/__pycache__/
