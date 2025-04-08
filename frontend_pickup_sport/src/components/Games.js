@@ -23,7 +23,6 @@ const Games = () => {
     try {
       await API.post(`games/${gameId}/join/`);
       alert('Successfully joined the game!');
-      // Optionally refetch games here to update UI
     } catch (err) {
       setError('Failed to join the game.');
     }
@@ -42,7 +41,6 @@ const Games = () => {
       <ul className="list-group">
         {games.map((game) => (
           <li key={game.id} className="list-group-item">
-            {/* Example: link to game detail, plus a Join button */}
             <Link to={`/games/${game.id}`}>
               {game.sport.name} at {game.location} on {new Date(game.start_time).toLocaleString()}
             </Link>
