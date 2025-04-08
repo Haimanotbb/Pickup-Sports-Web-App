@@ -2,6 +2,8 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import API from '../api/api';
 
+const INTERVAL = 30000
+
 const GameDetail = () => {
   const { id } = useParams();
   const [game, setGame] = useState(null);
@@ -16,7 +18,10 @@ const GameDetail = () => {
         setError('Failed to fetch game details.');
       }
     };
+    
     fetchGame();
+    const intervalId = setInterval(fetchGame, INTERVAL);
+    return () => clearInterval(intervalId);
   }, [id]);
 
   if (error) {
@@ -43,6 +48,7 @@ const GameDetail = () => {
       </p>
       <p><strong>Status:</strong> {game.status}</p>
       <p><strong>Skill Level:</strong> {game.skill_level}</p>
+      <p><strong>Creator:</strong> {game.creator.name || ''} ({game.creator.email})</p>
       
       {game.participants && game.participants.length > 0 ? (
         <div>
