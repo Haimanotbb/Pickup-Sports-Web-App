@@ -8,14 +8,15 @@ from django.contrib.auth.models import AbstractUser
 class CustomUser(AbstractUser):
     email = models.EmailField('email address', unique=True)
     name = models.CharField(max_length=100, blank=True)
-    bio = models.TextField(blank=True) 
-    favorite_sports = models.ManyToManyField('Sport', related_name='favorite_users', blank=True)
+    bio = models.TextField(blank=True)
+    favorite_sports = models.ManyToManyField(
+        'Sport', related_name='favorite_users', blank=True)
+
     def __str__(self):
-        return self.email
+        return self.email or self.username or f"User {self.pk}"
+
     class Meta:
         db_table = 'users'
-
-
 
 
 class Sport(models.Model):
@@ -80,6 +81,6 @@ class Participant(models.Model):
 
     def __str__(self):
         return f"{self.user.name} in {self.game}"
-    
+
     class Meta:
         unique_together = ('user', 'game')
