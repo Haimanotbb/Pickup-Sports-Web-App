@@ -64,7 +64,7 @@ const Games = () => {
     try {
       await API.post(`games/${gameId}/join/`);
       alert('Successfully joined the game!');
-      // Optionally refetch games here to update UI
+      fetchGames()
     } catch (err) {
       setError('Failed to join the game.');
     }
@@ -83,7 +83,7 @@ const Games = () => {
         <input
           type="text"
           name="sport"
-          placeholder="Filter by sport"
+          placeholder="Enter sport"
           value={filters.sport}
           onChange={handleFilterChange}
           className="form-control d-inline-block me-2"
@@ -92,7 +92,7 @@ const Games = () => {
         <input
           type="text"
           name="location"
-          placeholder="Filter by location"
+          placeholder="Enter location"
           value={filters.location}
           onChange={handleFilterChange}
           className="form-control d-inline-block me-2"
@@ -101,7 +101,7 @@ const Games = () => {
         <input
           type="text"
           name="time"
-          placeholder="Filter by time"
+          placeholder="Enter time"
           value={filters.time}
           onChange={handleFilterChange}
           className="form-control d-inline-block"
