@@ -16,81 +16,74 @@ from django.http import HttpResponse
 import random
 import string
 
+
 def make_random_password(length=8):
     """Generate a random password with the given length."""
     characters = string.ascii_letters + string.digits + string.punctuation
     return ''.join(random.choice(characters) for i in range(length))
 
+
 CAS_SERVER_URL = "https://secure6.its.yale.edu/cas/"
-FRONTEND_URL_AFTER_LOGIN = "http://localhost:3000/api/games"
+FRONTEND_URL_AFTER_LOGIN = "http://localhost:3000/games"
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def cas_login(request):
     service_url = request.build_absolute_uri(request.path)
     ticket = request.GET.get('ticket')
-    
+
     if not ticket:
-        #cas_login_url = f"https://secure6.its.yale.edu/cas/login?service={service_url}"
         cas_login_url = f"{settings.CAS_BASE_URL}/login?service={service_url}"
         return redirect(cas_login_url)
-    
-    # We have a ticket; validate it using CAS's serviceValidate endpoint.
-    #validate_url = "https://secure6.its.yale.edu/cas/serviceValidate"
+
     validate_url = f"{settings.CAS_BASE_URL}/serviceValidate"
-    params = {
-        'ticket': ticket,
-        'service': service_url,
-    }
+    params = {'ticket': ticket, 'service': service_url}
     try:
         response = requests.get(validate_url, params=params, timeout=5)
         response.raise_for_status()
     except requests.RequestException:
         return HttpResponse("Error contacting CAS server.", status=500)
-    
-    # Parse the XML response.
+
     try:
         root = ET.fromstring(response.text)
     except ET.ParseError:
         return HttpResponse("Invalid response from CAS server.", status=500)
-    
-    # Yale CAS returns XML using a specific namespace.
+
     ns = {'cas': 'http://www.yale.edu/tp/cas'}
     auth_success = root.find('cas:authenticationSuccess', ns)
     if auth_success is not None:
-        # Extract the username.
         username_el = auth_success.find('cas:user', ns)
         if username_el is None or not username_el.text:
             return HttpResponse("CAS authentication succeeded but no user data found.", status=400)
         username = username_el.text.strip()
-    
-        # Get or create the user. In this example, we default the user’s email to username@yale.edu.
+
         User = get_user_model()
+        # Here we deliberately leave email blank (or use a placeholder) so that missing info is obvious.
         user, created = User.objects.get_or_create(
             username=username,
             defaults={
-                'email': f"{username}@yale.edu",
-                # Generate a random password since CAS is handling authentication
+                # Alternatively: f"{username}@yale.edu" if you want a placeholder
+                'email': '',
                 'password': make_random_password(),
             }
         )
-    
-        # Log the user into the session.
         login(request, user, backend='django_cas_ng.backends.CASBackend')
-    
-        # Retrieve (or create) an API token for this user.
         token, _ = Token.objects.get_or_create(user=user)
-    
-        # Redirect to your target page (here, the games page). Optionally, pass the token in the URL.
-        #return redirect(f"/games?token={token.key}")
-        return redirect(f"{FRONTEND_URL_AFTER_LOGIN}?token={token.key}")
+
+        # Check if essential details are missing (adjust the condition as necessary)
+        if created or not user.email or not user.name:
+            # Redirect to a profile completion page
+            return redirect(f"http://localhost:3000/profile/setup?token={token.key}")
+        else:
+            return redirect(f"{FRONTEND_URL_AFTER_LOGIN}?token={token.key}")
     else:
-        # If authentication failed, return an error.
         return HttpResponse("CAS authentication failed.", status=401)
+
 
 @api_view(['GET'])
 @permission_classes([AllowAny])
-def cas_logout(request): 
+def cas_logout(request):
     # Log out locally
     logout(request)
 
@@ -111,7 +104,9 @@ def public_profile(request, id):
     serializer = UserProfileSerializer(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
-#Get user profile 
+# Get user profile
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def profile_detail(request):
@@ -121,6 +116,7 @@ def profile_detail(request):
     serializer = UserProfileSerializer(request.user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def profile_update(request):
@@ -128,7 +124,8 @@ def profile_update(request):
     Update the authenticated user's profile
     """
 
-    serializer = CustomUserProfileUpdateSerializer(request.user, data=request.data, partial=True)
+    serializer = CustomUserProfileUpdateSerializer(
+        request.user, data=request.data, partial=True)
     if serializer.is_valid():
         serializer.save()
 
@@ -136,13 +133,15 @@ def profile_update(request):
         return Response(full_serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-#Sign Up
+# Sign Up
+
+
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup_user(request):
     email = request.data.get('email')
     password = request.data.get('password')
-    name = request.data.get('name', '')  
+    name = request.data.get('name', '')
 
     # Check if user already exists
     User = get_user_model()
@@ -152,7 +151,7 @@ def signup_user(request):
 
     # Create the user
     user = User.objects.create_user(
-        username=email,  
+        username=email,
         email=email,
         password=password,
         name=name
@@ -192,6 +191,8 @@ def game_list(request):
     return Response(serializer.data)
 
 # Create a new game (POST /api/games/create/)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # Require authentication
 def game_create(request):
@@ -202,6 +203,8 @@ def game_create(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Retrieve a single game (GET /api/games/<pk>/)
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])  # Allow anyone to view game details
 def game_detail(request, pk):
@@ -213,6 +216,8 @@ def game_detail(request, pk):
     return Response(serializer.data)
 
 # Update a game (PUT /api/games/<pk>/update/)
+
+
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])  # Require authentication
 def game_update(request, pk):
@@ -229,6 +234,8 @@ def game_update(request, pk):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Delete a game (DELETE /api/games/<pk>/delete/)
+
+
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])  # Require authentication
 def game_delete(request, pk):
@@ -242,6 +249,8 @@ def game_delete(request, pk):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 # Join a game (POST /api/games/<pk>/join/)
+
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])  # Require authentication
 def join_game(request, pk):
@@ -249,14 +258,16 @@ def join_game(request, pk):
         game = Game.objects.get(pk=pk)
     except Game.DoesNotExist:
         return Response({"error": "Game not found"}, status=status.HTTP_404_NOT_FOUND)
-    
+
     if game.participant_set.filter(user=request.user).exists():
         return Response({"error": "You have already joined this game"}, status=status.HTTP_400_BAD_REQUEST)
-    
+
     Participant.objects.create(user=request.user, game=game)
     return Response({"message": "Successfully joined the game"}, status=status.HTTP_200_OK)
 
 # List all sports (GET /api/sports/)
+
+
 @api_view(['GET'])
 @permission_classes([AllowAny])  # Allow anyone to list sports
 def sport_list(request):

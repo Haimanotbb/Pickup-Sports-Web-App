@@ -1,15 +1,28 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import API from '../api/api';
 
 const ProfileSetup = () => {
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  // Check for token in URL and store it in localStorage
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+    if (token) {
+      localStorage.setItem('token', token);
+    }
+  }, [location]);
+
   const [sportsList, setSportsList] = useState([]);
   const [formData, setFormData] = useState({
+    email: '',
+    name: '',
     bio: '',
-    favorite_sports: [] 
+    favorite_sports: []
   });
   const [error, setError] = useState('');
-  const navigate = useNavigate();
 
   // Fetch all sports from the backend on mount
   useEffect(() => {
@@ -24,13 +37,13 @@ const ProfileSetup = () => {
     fetchSports();
   }, []);
 
-  // Handle changes for bio and for sports selection
+  // Handle general changes for email, name, bio
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle changes for a multi-select element
+  // Handle multi-select changes for favorite sports
   const handleMultiSelectChange = (e) => {
     const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
     setFormData(prev => ({ ...prev, favorite_sports: selectedOptions }));
@@ -40,7 +53,7 @@ const ProfileSetup = () => {
     e.preventDefault();
     try {
       await API.put('profile/update/', formData);
-      navigate('/games'); 
+      navigate('/games');
     } catch (err) {
       setError('Failed to update profile.');
     }
@@ -48,9 +61,31 @@ const ProfileSetup = () => {
 
   return (
     <div className="container mt-4">
-      <h2>Set Up Your Profile</h2>
+      <h2>Complete Your Profile</h2>
       {error && <div className="alert alert-danger">{error}</div>}
       <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label>Email:</label>
+          <input
+            type="email"
+            name="email"
+            className="form-control"
+            value={formData.email}
+            onChange={handleChange}
+            required
+          />
+        </div>
+        <div className="mb-3">
+          <label>Name:</label>
+          <input
+            type="text"
+            name="name"
+            className="form-control"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <div className="mb-3">
           <label>Bio:</label>
           <textarea
@@ -60,7 +95,6 @@ const ProfileSetup = () => {
             onChange={handleChange}
           />
         </div>
-
         <div className="mb-3">
           <label>Favorite Sports:</label>
           <select
@@ -80,7 +114,6 @@ const ProfileSetup = () => {
             Hold down the Ctrl (Windows) / Cmd (Mac) key to select multiple options.
           </small>
         </div>
-
         <button type="submit" className="btn btn-primary">Save Profile</button>
       </form>
     </div>
