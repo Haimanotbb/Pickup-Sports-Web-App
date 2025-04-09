@@ -1,17 +1,13 @@
-// project-project-group-17/frontend_pickup_sport/src/components/CasLoginButton.js
 import React from 'react';
 
-// CasLoginButton component for CAS authentication via a redirect.
+// CasLoginButton component for CAS authentication via a backend redirect.
 const CasLoginButton = () => {
     const handleCasLogin = () => {
-        // Replace with your actual CAS server URL.
-        // Optionally, use an environment variable such as REACT_APP_CAS_URL.
-        const casUrl = process.env.REACT_APP_CAS_URL || 'https://cas.example.com/login';
-        // The service URL is where CAS will redirect back after successful authentication.
-        // This could be your homepage or a dedicated endpoint.
-        const serviceUrl = encodeURIComponent(window.location.origin);
-        // Redirect the browser to the CAS login page.
-        window.location.href = `${casUrl}?service=${serviceUrl}`;
+        // Redirect to the backend endpoint that handles CAS login.
+        // The backend view (cas_login) will then redirect to Yale CAS with the correct service URL.
+        // Use an environment variable if provided, otherwise default to 'http://localhost:8000/cas/login'.
+        const casLoginEndpoint = process.env.REACT_APP_CAS_LOGIN_ENDPOINT || 'http://localhost:8000/cas/login';
+        window.location.href = casLoginEndpoint;
     };
 
     return (
