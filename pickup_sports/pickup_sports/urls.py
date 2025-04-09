@@ -17,10 +17,11 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path, include
-
+from scheduler import views
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("api/", include('scheduler.urls'))
+    path("api/", include('scheduler.urls')),
+    path("cas-login/", views.cas_login, name='cas_login'),
 ]
 
 

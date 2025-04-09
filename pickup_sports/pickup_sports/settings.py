@@ -33,6 +33,8 @@ ALLOWED_HOSTS = []
 
 AUTH_USER_MODEL = 'scheduler.CustomUser'
 
+CAS_BASE_URL = "https://secure6.its.yale.edu/cas"
+
 
 # Application definition
 
@@ -46,8 +48,14 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "corsheaders",
-    "scheduler"
+    "django_cas_ng",
+    "scheduler",
 ]
+
+AUTHENTICATION_BACKENDS = (
+    'django_cas_ng.backends.CASBackend',
+    'django.contrib.auth.backends.ModelBackend',
+)
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [

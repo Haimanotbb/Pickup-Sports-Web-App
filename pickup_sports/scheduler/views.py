@@ -6,6 +6,98 @@ from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.authtoken.models import Token
 from .models import Game, Participant, Sport
 from .serializers import GameSerializer, SportSerializer, ParticipantSerializer, CustomUserProfileUpdateSerializer, UserProfileSerializer
+from django.contrib.auth import login, logout, get_user_model
+from django.shortcuts import redirect
+from urllib.parse import urlencode
+from django.conf import settings
+import requests
+import xml.etree.ElementTree as ET
+from django.http import HttpResponse
+import random
+import string
+
+def make_random_password(length=8):
+    """Generate a random password with the given length."""
+    characters = string.ascii_letters + string.digits + string.punctuation
+    return ''.join(random.choice(characters) for i in range(length))
+
+CAS_SERVER_URL = "https://secure6.its.yale.edu/cas/"
+FRONTEND_URL_AFTER_LOGIN = "http://localhost:3000/api/games"
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def cas_login(request):
+    service_url = request.build_absolute_uri(request.path)
+    ticket = request.GET.get('ticket')
+    
+    if not ticket:
+        #cas_login_url = f"https://secure6.its.yale.edu/cas/login?service={service_url}"
+        cas_login_url = f"{settings.CAS_BASE_URL}/login?service={service_url}"
+        return redirect(cas_login_url)
+    
+    # We have a ticket; validate it using CAS's serviceValidate endpoint.
+    #validate_url = "https://secure6.its.yale.edu/cas/serviceValidate"
+    validate_url = f"{settings.CAS_BASE_URL}/serviceValidate"
+    params = {
+        'ticket': ticket,
+        'service': service_url,
+    }
+    try:
+        response = requests.get(validate_url, params=params, timeout=5)
+        response.raise_for_status()
+    except requests.RequestException:
+        return HttpResponse("Error contacting CAS server.", status=500)
+    
+    # Parse the XML response.
+    try:
+        root = ET.fromstring(response.text)
+    except ET.ParseError:
+        return HttpResponse("Invalid response from CAS server.", status=500)
+    
+    # Yale CAS returns XML using a specific namespace.
+    ns = {'cas': 'http://www.yale.edu/tp/cas'}
+    auth_success = root.find('cas:authenticationSuccess', ns)
+    if auth_success is not None:
+        # Extract the username.
+        username_el = auth_success.find('cas:user', ns)
+        if username_el is None or not username_el.text:
+            return HttpResponse("CAS authentication succeeded but no user data found.", status=400)
+        username = username_el.text.strip()
+    
+        # Get or create the user. In this example, we default the user’s email to username@yale.edu.
+        User = get_user_model()
+        user, created = User.objects.get_or_create(
+            username=username,
+            defaults={
+                'email': f"{username}@yale.edu",
+                # Generate a random password since CAS is handling authentication
+                'password': make_random_password(),
+            }
+        )
+    
+        # Log the user into the session.
+        login(request, user, backend='django_cas_ng.backends.CASBackend')
+    
+        # Retrieve (or create) an API token for this user.
+        token, _ = Token.objects.get_or_create(user=user)
+    
+        # Redirect to your target page (here, the games page). Optionally, pass the token in the URL.
+        #return redirect(f"/games?token={token.key}")
+        return redirect(f"{FRONTEND_URL_AFTER_LOGIN}?token={token.key}")
+    else:
+        # If authentication failed, return an error.
+        return HttpResponse("CAS authentication failed.", status=401)
+
+@api_view(['GET'])
+@permission_classes([AllowAny])
+def cas_logout(request): 
+    # Log out locally
+    logout(request)
+
+    # Build the URL to which CAS should redirect after logout (e.g., homepage).
+    service_url = request.build_absolute_uri('/')
+    cas_logout_url = f"https://secure6.its.yale.edu/cas/logout?service={service_url}"
+    return redirect(cas_logout_url)
 
 
 @api_view(['GET'])
@@ -72,18 +164,18 @@ def signup_user(request):
 
 
 # Login to get a token (POST /api/login/)
-@api_view(['POST'])
-@permission_classes([AllowAny])  # Allow anyone to access this endpoint
-def login_user(request):
-    email = request.data.get('email')
-    password = request.data.get('password')
-    #user = authenticate(request, email=email, password=password)
-    user = authenticate(request, username=email, password=password)
+# @api_view(['POST'])
+# @permission_classes([AllowAny])  # Allow anyone to access this endpoint
+# def login_user(request):
+#     email = request.data.get('email')
+#     password = request.data.get('password')
+#     #user = authenticate(request, email=email, password=password)
+#     user = authenticate(request, username=email, password=password)
 
-    if user is not None:
-        token, created = Token.objects.get_or_create(user=user)
-        return Response({'token': token.key}, status=status.HTTP_200_OK)
-    return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+#     if user is not None:
+#         token, created = Token.objects.get_or_create(user=user)
+#         return Response({'token': token.key}, status=status.HTTP_200_OK)
+#     return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 # List all games (GET /api/games/)
 @api_view(['GET'])
