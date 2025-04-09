@@ -2,6 +2,8 @@
 
 Pickup Sports is a web application designed to help students (or any group of users) organize and join casual sports and games on campus (or in the local community). It enables users to create games, browse upcoming games, join games, and see who else is participating. Beyond traditional sports, the app also supports board and strategy games, making it a versatile solution for organizing all kinds of meetups.
 
+__Scroll to the bottom for testing instructions.__
+
 ## Features
 
 ### User Authentication
@@ -46,7 +48,7 @@ Pickup Sports is a web application designed to help students (or any group of us
 •⁠  ⁠*Navigation*: React Router for client-side routing.
 •⁠  ⁠*Styling*: Bootstrap / React Bootstrap for responsive UI design.
 
-## Testing the MVP
+## Testing Alpha
 
 Follow these steps to set up and test the Minimum Viable Product (MVP) locally.
 
@@ -54,6 +56,7 @@ Follow these steps to set up and test the Minimum Viable Product (MVP) locally.
 •⁠  ⁠Ensure you have the following installed:
   - Python (for the backend)
   - Node.js and npm (for the frontend)
+
 •⁠  ⁠Clone the repository to your local machine.
 
 ### Step 1: Set Up and Run the Backend (Server)
@@ -62,10 +65,13 @@ Follow these steps to set up and test the Minimum Viable Product (MVP) locally.
 3. cd pickup_sports
 4. Run python manage.py runserver 
 
-### NOTE:
-If step 2 is not working please call us at 470-923-1554 to get new ip address. After receiving ip address navigate to settings.py in the pickup_sports folder and change the hostname address in the "Databases" object.
+### IMPORTANT:
+__If step 4 is not working please text us at 470-923-1554 to get new ip address.__ We are running the database server on a team-mates computer, whose ip address occasionally changes. We will provide you with the updated IP address. Then, from the project root directory, navigate to pickup_sports/settings.py and change the hostname address in the "Databases" object:
 
-### Step 2: Set Up and Run Frontend 
+'HOST': 'ADD NEW IP ADDRESS HERE'
+
+### Step 2: Set Up and Run Frontend
+(from project root dir:)
 1. cd frontend_pickup_sports
 2. npm install
 3. npm start
