@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import API from '../api/api';
 
-const INTERVAL = 30000
+const INTERVAL = 7000
 
 const GameDetail = () => {
   const { id } = useParams();

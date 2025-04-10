@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import API from '../api/api';
 
-const INTERVAL = 30000
+const INTERVAL = 7000
 
 const Games = () => {
   const [games, setGames] = useState([]);
