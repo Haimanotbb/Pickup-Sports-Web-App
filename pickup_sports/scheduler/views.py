@@ -59,11 +59,9 @@ def cas_login(request):
         username = username_el.text.strip()
 
         User = get_user_model()
-        # Here we deliberately leave email blank (or use a placeholder) so that missing info is obvious.
         user, created = User.objects.get_or_create(
             username=username,
             defaults={
-                # Alternatively: f"{username}@yale.edu" if you want a placeholder
                 'email': '',
                 'password': make_random_password(),
             }
@@ -71,9 +69,7 @@ def cas_login(request):
         login(request, user, backend='django_cas_ng.backends.CASBackend')
         token, _ = Token.objects.get_or_create(user=user)
 
-        # Check if essential details are missing (adjust the condition as necessary)
         if created or not user.email or not user.name:
-            # Redirect to a profile completion page
             return redirect(f"http://localhost:3000/profile/setup?token={token.key}")
         else:
             return redirect(f"{FRONTEND_URL_AFTER_LOGIN}?token={token.key}")
@@ -84,10 +80,7 @@ def cas_login(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def cas_logout(request):
-    # Log out locally
     logout(request)
-
-    # Build the URL to which CAS should redirect after logout (e.g., homepage).
     service_url = request.build_absolute_uri('/')
     cas_logout_url = f"https://secure6.its.yale.edu/cas/logout?service={service_url}"
     return redirect(cas_logout_url)
@@ -178,7 +171,7 @@ def profile_update(request):
 
 # List all games (GET /api/games/)
 @api_view(['GET'])
-@permission_classes([AllowAny])  # Allow anyone to list games
+@permission_classes([AllowAny])  
 def game_list(request):
     games = Game.objects.all()
     sport_id = request.query_params.get('sport_id')
@@ -194,11 +187,11 @@ def game_list(request):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])  # Require authentication
+@permission_classes([IsAuthenticated])
 def game_create(request):
     serializer = GameSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(creator=request.user)  # Use the authenticated user
+        serializer.save(creator=request.user)  
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -206,7 +199,7 @@ def game_create(request):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])  # Allow anyone to view game details
+@permission_classes([AllowAny]) 
 def game_detail(request, pk):
     try:
         game = Game.objects.get(pk=pk)
@@ -219,7 +212,7 @@ def game_detail(request, pk):
 
 
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated])  # Require authentication
+@permission_classes([IsAuthenticated]) 
 def game_update(request, pk):
     try:
         game = Game.objects.get(pk=pk)
@@ -237,7 +230,7 @@ def game_update(request, pk):
 
 
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated])  # Require authentication
+@permission_classes([IsAuthenticated]) 
 def game_delete(request, pk):
     try:
         game = Game.objects.get(pk=pk)
@@ -252,7 +245,7 @@ def game_delete(request, pk):
 
 
 @api_view(['POST'])
-@permission_classes([IsAuthenticated])  # Require authentication
+@permission_classes([IsAuthenticated]) 
 def join_game(request, pk):
     try:
         game = Game.objects.get(pk=pk)
@@ -269,7 +262,7 @@ def join_game(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny])  # Allow anyone to list sports
+@permission_classes([AllowAny])  
 def sport_list(request):
     sports = Sport.objects.all()
     serializer = SportSerializer(sports, many=True)

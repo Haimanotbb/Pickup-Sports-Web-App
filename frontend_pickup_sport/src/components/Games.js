@@ -57,7 +57,7 @@ const Games = () => {
     const { name, value } = e.target;
     const newFilters = { ...filters, [name]: value };
     setFilters(newFilters);
-    applyFilters(games, newFilters); //filter cached games
+    applyFilters(games, newFilters); 
   };
 
   const handleJoin = async (gameId) => {

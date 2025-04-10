@@ -1,25 +1,21 @@
-// src/components/Profile.js
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
-  const [sportsList, setSportsList] = useState([]); // Holds available sports
+  const [sportsList, setSportsList] = useState([]); 
   const [editMode, setEditMode] = useState(false);
   
-  // formData.favorite_sports will now be an array of sport IDs.
   const [formData, setFormData] = useState({ name: '', bio: '', favorite_sports: [] });
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Fetch user profile on component mount.
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await API.get('profile/');
         setProfile(response.data);
-        // Set initial form values. Note: We convert favorite_sports into an array of string IDs.
         setFormData({
           name: response.data.name || '',
           bio: response.data.bio || '',
@@ -32,7 +28,6 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
-  // Fetch all sports for the dropdown.
   useEffect(() => {
     const fetchSports = async () => {
       try {
@@ -50,20 +45,18 @@ const Profile = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handler for multi-select change.
+
   const handleMultiSelectChange = (e) => {
-    // e.target.selectedOptions returns a collection of the selected options.
     const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
     setFormData(prev => ({ ...prev, favorite_sports: selectedOptions }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    // Prepare the update payload.
     const updatedData = {
       name: formData.name,
       bio: formData.bio,
-      favorite_sports: formData.favorite_sports  // Already an array of sport IDs
+      favorite_sports: formData.favorite_sports 
     };
 
     try {

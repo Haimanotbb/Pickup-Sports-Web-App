@@ -11,18 +11,15 @@ const CreateGame = () => {
     status: 'open',
     skill_level: 'all',
   });
-  const [sports, setSports] = useState([]); // State to hold the list of sports
+  const [sports, setSports] = useState([]); 
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // Redirect to login if token is missing
   useEffect(() => {
     if (!localStorage.getItem('token')) {
       navigate('/login');
     }
   }, [navigate]);
-
-  // Fetch the list of sports when the component mounts
   useEffect(() => {
     const fetchSports = async () => {
       try {
@@ -54,7 +51,6 @@ const CreateGame = () => {
       <h2>Create a Game</h2>
       {error && <div className="alert alert-danger">{error}</div>}
       <form onSubmit={handleSubmit}>
-        {/* Sport dropdown */}
         <div className="mb-3">
           <label>Sport:</label>
           <select 

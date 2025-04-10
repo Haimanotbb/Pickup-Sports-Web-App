@@ -48,7 +48,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class ParticipantSerializer(serializers.ModelSerializer):
-    user = CustomUserSerializer(read_only=True)  # Nested user details
+    user = CustomUserSerializer(read_only=True) 
 
     class Meta:
         model = Participant
@@ -59,10 +59,10 @@ class ParticipantSerializer(serializers.ModelSerializer):
 
 
 class GameSerializer(serializers.ModelSerializer):
-    creator = CustomUserSerializer(read_only=True)  # Nested creator details
-    sport = SportSerializer(read_only=True)  # Nested sport details
+    creator = CustomUserSerializer(read_only=True)  
+    sport = SportSerializer(read_only=True)  
     participants = ParticipantSerializer(
-        source='participant_set', many=True, read_only=True)  # Nested list of participants
+        source='participant_set', many=True, read_only=True)  
     sport_id = serializers.PrimaryKeyRelatedField(
         queryset=Sport.objects.all(), source='sport', write_only=True
     )
