@@ -72,13 +72,6 @@ const Games = () => {
 
   return (
     <div className="container mt-4">
-      <div className="d-flex justify-content-end mb-3">
-        <Link to="/profile" className="btn btn-secondary">
-          My Profile
-        </Link>
-      </div>
-
-      {/* Filter Inputs */}
       <div className="mb-3">
         <input
           type="text"

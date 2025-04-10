@@ -1,22 +1,29 @@
+// src/components/Profile.js
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
+  const [sportsList, setSportsList] = useState([]); // Holds available sports
   const [editMode, setEditMode] = useState(false);
-  const [formData, setFormData] = useState({ name: '', bio: '', favorite_sports: '' });
+  
+  // formData.favorite_sports will now be an array of sport IDs.
+  const [formData, setFormData] = useState({ name: '', bio: '', favorite_sports: [] });
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
-  // Fetch profile on component mount
+  // Fetch user profile on component mount.
   useEffect(() => {
     const fetchProfile = async () => {
       try {
         const response = await API.get('profile/');
         setProfile(response.data);
+        // Set initial form values. Note: We convert favorite_sports into an array of string IDs.
         setFormData({
           name: response.data.name || '',
           bio: response.data.bio || '',
-          favorite_sports: response.data.favorite_sports.map(s => s.id).join(', ')
+          favorite_sports: response.data.favorite_sports.map(s => s.id.toString())
         });
       } catch (err) {
         setError('Failed to load profile.');
@@ -25,17 +32,38 @@ const Profile = () => {
     fetchProfile();
   }, []);
 
+  // Fetch all sports for the dropdown.
+  useEffect(() => {
+    const fetchSports = async () => {
+      try {
+        const response = await API.get('sports/');
+        setSportsList(response.data);
+      } catch (err) {
+        console.error('Failed to fetch sports');
+      }
+    };
+    fetchSports();
+  }, []);
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+  // Handler for multi-select change.
+  const handleMultiSelectChange = (e) => {
+    // e.target.selectedOptions returns a collection of the selected options.
+    const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
+    setFormData(prev => ({ ...prev, favorite_sports: selectedOptions }));
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
+    // Prepare the update payload.
     const updatedData = {
       name: formData.name,
       bio: formData.bio,
-      favorite_sports: formData.favorite_sports.split(',').map(id => id.trim()).filter(id => id)
+      favorite_sports: formData.favorite_sports  // Already an array of sport IDs
     };
 
     try {
@@ -48,7 +76,11 @@ const Profile = () => {
   };
 
   if (error) {
-    return <div className="container mt-4"><div className="alert alert-danger">{error}</div></div>;
+    return (
+      <div className="container mt-4">
+        <div className="alert alert-danger">{error}</div>
+      </div>
+    );
   }
   if (!profile) {
     return <div className="container mt-4">Loading...</div>;
@@ -75,18 +107,21 @@ const Profile = () => {
       ) : (
         <form onSubmit={handleSubmit}>
           <div className="mb-3">
-            <label>Name:</label>
+            <label htmlFor="name" className="form-label">Name:</label>
             <input 
+              id="name"
               type="text" 
               name="name" 
               className="form-control" 
               value={formData.name}
               onChange={handleChange}
+              required
             />
           </div>
           <div className="mb-3">
-            <label>Bio:</label>
+            <label htmlFor="bio" className="form-label">Bio:</label>
             <textarea 
+              id="bio"
               name="bio" 
               className="form-control" 
               value={formData.bio}
@@ -94,16 +129,23 @@ const Profile = () => {
             />
           </div>
           <div className="mb-3">
-            <label>Favorite Sports (comma-separated Sport IDs):</label>
-            <input 
-              type="text" 
-              name="favorite_sports" 
-              className="form-control" 
+            <label htmlFor="favoriteSports" className="form-label">Favorite Sports:</label>
+            <select
+              id="favoriteSports"
+              multiple
+              name="favorite_sports"
+              className="form-select"
               value={formData.favorite_sports}
-              onChange={handleChange}
-            />
+              onChange={handleMultiSelectChange}
+            >
+              {sportsList.map(sport => (
+                <option key={sport.id} value={sport.id.toString()}>
+                  {sport.name}
+                </option>
+              ))}
+            </select>
             <small className="form-text text-muted">
-              Enter sport IDs separated by commas. (You can get available Sport IDs from the Sports endpoint.)
+              Hold down Ctrl (Windows) or Cmd (Mac) to select multiple options.
             </small>
           </div>
           <button type="submit" className="btn btn-success">Save</button>

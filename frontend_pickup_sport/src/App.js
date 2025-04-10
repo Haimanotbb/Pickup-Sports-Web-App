@@ -1,5 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Navigation from './components/Navigation';
 import Login from './components/Login';
 import Signup from './components/Signup';
@@ -12,20 +12,23 @@ import ProfileSetup from './components/ProfileSetup';
 
 function AppContent() {
   const location = useLocation();
+  // Use state to hold login status.
+  const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
 
-  // Extract token from the URL (if present) and store it in localStorage.
-  // Remove the token from the URL afterward.
+  // Extract token from the URL (if present), store it in localStorage, and update state.
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const token = params.get('token');
     if (token) {
       localStorage.setItem('token', token);
+      // Update our reactive state so that the Navigation bar updates immediately.
+      setIsLoggedIn(true);
       // Remove query parameters from the URL.
       window.history.replaceState({}, document.title, location.pathname);
     }
   }, [location.search, location.pathname]);
 
-  const isLoggedIn = !!localStorage.getItem('token');
+  // Only hide Navigation on certain routes
   const hideNavRoutes = ['/login', '/signup', '/'];
   const showNavigation = isLoggedIn && !hideNavRoutes.includes(location.pathname);
 

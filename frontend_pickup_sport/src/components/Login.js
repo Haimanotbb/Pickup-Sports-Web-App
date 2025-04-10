@@ -34,82 +34,9 @@ const Login = () => {
 
   return (
     <div className="container mt-4">
-      <h2>Login</h2>
-      {error && <div className="alert alert-danger">{error}</div>}
-      <form onSubmit={handleSubmit}>
-        <div className="mb-3">
-          <label>Email:</label>
-          <input
-            type="email"
-            name="email"
-            className="form-control"
-            value={formData.email}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <div className="mb-3">
-          <label>Password:</label>
-          <input
-            type="password"
-            name="password"
-            className="form-control"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-        </div>
-        <button type="submit" className="btn btn-primary" disabled={loading}>
-          {loading ? 'Logging in...' : 'Log In'}
-        </button>
-      </form>
-      <p className="mt-3">
-        Don't have an account? <Link to="/signup">Sign up here</Link>
-      </p>
-      <hr />
-      <h4>Or</h4>
-      <CasLoginButton />
+      <CasLoginButton />  
     </div>
   );
 }; 
 
 export default Login;
-
-//   return (
-//     <div className="container mt-4">
-//       <h2>Login</h2>
-//       {error && <div className="alert alert-danger">{error}</div>}
-//       <form onSubmit={handleSubmit}>
-//         <div className="mb-3">
-//           <label>Email:</label>
-//           <input 
-//             type="email" 
-//             name="email" 
-//             className="form-control" 
-//             value={formData.email}
-//             onChange={handleChange}
-//             required 
-//           />
-//         </div>
-//         <div className="mb-3">
-//           <label>Password:</label>
-//           <input 
-//             type="password" 
-//             name="password" 
-//             className="form-control" 
-//             value={formData.password}
-//             onChange={handleChange}
-//             required 
-//           />
-//         </div>
-//         <button type="submit" className="btn btn-primary">Log In</button>
-//       </form>
-//       <p className="mt-3">
-//         Don't have an account? <Link to="/signup">Sign up here</Link>
-//       </p>
-
-//     </div>
-//   );
-// };
-
-// export default Login;

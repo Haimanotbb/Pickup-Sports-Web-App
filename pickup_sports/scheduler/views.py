@@ -136,33 +136,33 @@ def profile_update(request):
 # Sign Up
 
 
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def signup_user(request):
-    email = request.data.get('email')
-    password = request.data.get('password')
-    name = request.data.get('name', '')
+# @api_view(['POST'])
+# @permission_classes([AllowAny])
+# def signup_user(request):
+#     email = request.data.get('email')
+#     password = request.data.get('password')
+#     name = request.data.get('name', '')
 
-    # Check if user already exists
-    User = get_user_model()
-    if User.objects.filter(email=email).exists():
-        return Response({"error": "User with this email already exists."},
-                        status=status.HTTP_400_BAD_REQUEST)
+#     # Check if user already exists
+#     User = get_user_model()
+#     if User.objects.filter(email=email).exists():
+#         return Response({"error": "User with this email already exists."},
+#                         status=status.HTTP_400_BAD_REQUEST)
 
-    # Create the user
-    user = User.objects.create_user(
-        username=email,
-        email=email,
-        password=password,
-        name=name
-    )
+#     # Create the user
+#     user = User.objects.create_user(
+#         username=email,
+#         email=email,
+#         password=password,
+#         name=name
+#     )
 
-    # Generate token
-    token, _ = Token.objects.get_or_create(user=user)
-    return Response({"token": token.key}, status=status.HTTP_201_CREATED)
+#     # Generate token
+#     token, _ = Token.objects.get_or_create(user=user)
+#     return Response({"token": token.key}, status=status.HTTP_201_CREATED)
 
 
-# Login to get a token (POST /api/login/)
+# # Login to get a token (POST /api/login/)
 # @api_view(['POST'])
 # @permission_classes([AllowAny])  # Allow anyone to access this endpoint
 # def login_user(request):
