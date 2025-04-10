@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Link,  useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
 import CasLoginButton from './CasLoginButton'; // import the CAS button
+import logo from '../assets/images/logo.png'; // adjust path as needed
 
 const Login = () => {
   const [formData, setFormData] = useState({ email: '', password: '' });
@@ -33,10 +34,21 @@ const Login = () => {
   };
 
   return (
-    <div className="container mt-4">
-      <CasLoginButton />  
+    <div className="container" style={{ marginTop: '80px' }}>
+      {/* Center everything in its own container */}
+      <div style={{ textAlign: 'center' }}>
+        {/* Logo stacked above the button */}
+        <img
+          src={logo}
+          alt="Y-Pickup Logo"
+          style={{ maxWidth: '300px', marginBottom: '30px' }}
+        />
+        <div style={{ marginBottom: '20px' }}>
+          <CasLoginButton />
+        </div>
+      </div>
     </div>
   );
-}; 
+};
 
 export default Login;
