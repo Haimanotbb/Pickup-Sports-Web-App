@@ -1,4 +1,5 @@
 import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { useEffect } from 'react';
 import Navigation from './components/Navigation';
 import Login from './components/Login';
 import Signup from './components/Signup';
@@ -11,9 +12,23 @@ import ProfileSetup from './components/ProfileSetup';
 
 function AppContent() {
   const location = useLocation();
+
+  // Extract token from the URL (if present) and store it in localStorage.
+  // Remove the token from the URL afterward.
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const token = params.get('token');
+    if (token) {
+      localStorage.setItem('token', token);
+      // Remove query parameters from the URL.
+      window.history.replaceState({}, document.title, location.pathname);
+    }
+  }, [location.search, location.pathname]);
+
   const isLoggedIn = !!localStorage.getItem('token');
   const hideNavRoutes = ['/login', '/signup', '/'];
   const showNavigation = isLoggedIn && !hideNavRoutes.includes(location.pathname);
+
   return (
     <>
       {showNavigation && <Navigation />}
@@ -31,6 +46,7 @@ function AppContent() {
     </>
   );
 }
+
 function App() {
   return (
     <Router>

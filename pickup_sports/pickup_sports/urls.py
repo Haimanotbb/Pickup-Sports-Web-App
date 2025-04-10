@@ -23,5 +23,3 @@ urlpatterns = [
     path("api/", include('scheduler.urls')),
     path("cas-login/", views.cas_login, name='cas_login'),
 ]
-
-

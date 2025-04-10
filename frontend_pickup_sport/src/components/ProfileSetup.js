@@ -1,20 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
 
 const ProfileSetup = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-
-  // Check for token in URL and store it in localStorage
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const token = params.get('token');
-    if (token) {
-      localStorage.setItem('token', token);
-    }
-  }, [location]);
-
   const [sportsList, setSportsList] = useState([]);
   const [formData, setFormData] = useState({
     email: '',
@@ -23,6 +11,7 @@ const ProfileSetup = () => {
     favorite_sports: []
   });
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   // Fetch all sports from the backend on mount
   useEffect(() => {
@@ -37,13 +26,13 @@ const ProfileSetup = () => {
     fetchSports();
   }, []);
 
-  // Handle general changes for email, name, bio
+  // Handle general form field changes (for email, name, bio)
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle multi-select changes for favorite sports
+  // Handle changes for multi-select element (favorite sports)
   const handleMultiSelectChange = (e) => {
     const selectedOptions = Array.from(e.target.selectedOptions, option => option.value);
     setFormData(prev => ({ ...prev, favorite_sports: selectedOptions }));
@@ -52,6 +41,7 @@ const ProfileSetup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
+      // Update the profile including email and name
       await API.put('profile/update/', formData);
       navigate('/games');
     } catch (err) {
