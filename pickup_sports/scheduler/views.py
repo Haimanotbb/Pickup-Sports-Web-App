@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 from django.http import HttpResponse
 import random
 import string
+from django.utils import timezone
 
 
 def make_random_password(length=8):
@@ -173,7 +174,8 @@ def profile_update(request):
 @api_view(['GET'])
 @permission_classes([AllowAny])  
 def game_list(request):
-    games = Game.objects.all()
+    now = timezone.now()
+    games = Game.objects.filter(end_time__gte=now)
     sport_id = request.query_params.get('sport_id')
     start_date = request.query_params.get('start_date')
     if sport_id:
@@ -196,6 +198,22 @@ def game_create(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 # Retrieve a single game (GET /api/games/<pk>/)
+
+
+# Cancel a game (POST /api/games/<pk>/cancel/)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cancel_game(request, pk):
+    try:
+        game = Game.objects.get(pk=pk)
+    except Game.DoesNotExist:
+        return Response({"error": "Game not found."}, status=status.HTTP_404_NOT_FOUND)
+    if game.creator != request.user:
+        return Response({"error": "You are not authorized to cancel this game."}, status=status.HTTP_403_FORBIDDEN)
+    game.status = 'cancelled'
+    game.save()
+    return Response({"message": "Game cancelled. It will remain cancelled until the scheduled end time."}, status=status.HTTP_200_OK)
+
 
 
 @api_view(['GET'])
@@ -242,6 +260,17 @@ def game_delete(request, pk):
     return Response(status=status.HTTP_204_NO_CONTENT)
 
 # Join a game (POST /api/games/<pk>/join/)
+
+
+# view previously created games
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_archived_games(request):
+    now = timezone.now()
+    games = Game.objects.filter(creator=request.user, end_time__lte=now)
+    serializer = GameSerializer(games, many=True)
+    return Response(serializer.data)
 
 
 @api_view(['POST'])

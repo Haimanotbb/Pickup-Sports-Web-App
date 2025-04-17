@@ -60,7 +60,11 @@ const Games = () => {
     applyFilters(games, newFilters); 
   };
 
-  const handleJoin = async (gameId) => {
+  const handleJoin = async (gameId, state) => {
+    if (state !== 'Open'){
+      alert('You can only join games that are open.')
+      return;
+    }
     try {
       await API.post(`games/${gameId}/join/`);
       alert('Successfully joined the game!');
@@ -107,12 +111,28 @@ const Games = () => {
       <ul className="list-group">
         {filteredGames.map((game) => (
           <li key={game.id} className="list-group-item">
-            <Link to={`/games/${game.id}`}>
-              {game.sport.name} at {game.location} on {new Date(game.start_time).toLocaleString()}
-            </Link>
+            <div>
+              <Link to={`/games/${game.id}`}>
+                <strong>{game.name}</strong> ({game.sport.name}) at{' '} 
+                {new Date(game.start_time).toLocaleString()}
+              </Link>
+              <div className="mt-1">
+                <span className={
+                  'badge ' +
+                  (game.current_state === 'Open'
+                    ? 'bg-success'
+                    : game.current_state === 'In Progress'
+                    ? 'bg-primary'
+                    : 'bg-danger')
+                }>
+                  {game.current_state}
+                </span>
+              </div>
+            </div>
             <button
               className="btn btn-primary ms-3"
-              onClick={() => handleJoin(game.id)}
+              disabled={game.current_state !== 'Open'}
+              onClick={() => handleJoin(game.id, game.current_state)}
             >
               Join
             </button>

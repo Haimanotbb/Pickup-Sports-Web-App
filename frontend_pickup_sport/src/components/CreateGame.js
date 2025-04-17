@@ -4,11 +4,11 @@ import API from '../api/api';
 
 const CreateGame = () => {
   const [formData, setFormData] = useState({
+    name: '',
     sport_id: '',
     location: '',
     start_time: '',
     end_time: '',
-    status: 'open',
     skill_level: 'all',
   });
   const [sports, setSports] = useState([]); 
@@ -20,6 +20,8 @@ const CreateGame = () => {
       navigate('/login');
     }
   }, [navigate]);
+
+  //fetch sports list
   useEffect(() => {
     const fetchSports = async () => {
       try {
@@ -39,7 +41,12 @@ const CreateGame = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await API.post('games/create/', formData);
+      const payload = {
+        ...formData,
+        start_time: new Date(formData.start_time).toISOString(),
+        end_time: new Date(formData.end_time).toISOString(),
+      };
+      await API.post('games/create/', payload);
       navigate('/games');
     } catch (err) {
       setError('Failed to create game.');
@@ -51,6 +58,17 @@ const CreateGame = () => {
       <h2>Create a Game</h2>
       {error && <div className="alert alert-danger">{error}</div>}
       <form onSubmit={handleSubmit}>
+        <div className="mb-3">
+          <label>Game Name:</label>
+          <input
+            type="text"
+            name="name"
+            className="form-control"
+            value={formData.name}
+            onChange={handleChange}
+            required
+          />
+        </div>
         <div className="mb-3">
           <label>Sport:</label>
           <select 
@@ -68,6 +86,7 @@ const CreateGame = () => {
             ))}
           </select>
         </div>
+
         <div className="mb-3">
           <label>Location:</label>
           <input 
@@ -100,20 +119,6 @@ const CreateGame = () => {
             onChange={handleChange}
             required 
           />
-        </div>
-        <div className="mb-3">
-          <label>Status:</label>
-          <select 
-            name="status" 
-            className="form-control" 
-            value={formData.status}
-            onChange={handleChange}
-          >
-            <option value="open">Open</option>
-            <option value="full">Full</option>
-            <option value="cancelled">Cancelled</option>
-            <option value="completed">Completed</option>
-          </select>
         </div>
         <div className="mb-3">
           <label>Skill Level:</label>

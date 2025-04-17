@@ -119,7 +119,7 @@ DATABASES = {
         'NAME': 'pickupdatabase',
         'USER': 'postgres',
         'PASSWORD': 'cpsc419',
-        'HOST': '10.74.42.29',
+        'HOST': '10.66.131.17',
         'PORT': '5432',
     }
 }
