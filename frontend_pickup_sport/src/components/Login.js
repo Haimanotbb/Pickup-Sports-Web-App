@@ -33,22 +33,79 @@ const Login = () => {
     }
   };
 
+  // return (
+  //   <div className="container" style={{ marginTop: '80px' }}>
+  //     {/* Center everything in its own container */}
+  //     <div style={{ textAlign: 'center' }}>
+  //       {/* Logo stacked above the button */}
+  //       <img
+  //         src={logo}
+  //         alt="Y-Pickup Logo"
+  //         style={{ maxWidth: '300px', marginBottom: '30px' }}
+  //       />
+  //       <div style={{ marginBottom: '20px' }}>
+  //         <CasLoginButton />
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
+
+
+
+  // return (
+  //   <div
+  //     className="container"
+  //     style={{
+  //       marginTop: '80px',
+  //       minHeight: '100vh', // Ensure the container spans the full viewport height
+  //       backgroundImage: `url(${logo})`, // Set logo as background image
+  //       backgroundSize: 'cover', // Make the image cover the entire container
+  //       backgroundPosition: 'center', // Center the image
+  //       backgroundRepeat: 'no-repeat', // Prevent the image from repeating
+  //       display: 'flex', // Use flexbox to center content
+  //       justifyContent: 'center', // Center horizontally
+  //       alignItems: 'flex-end', // Center vertically
+  //     }}
+  //   >
+  //     {/* Center the button */}
+  //     <div style={{ textAlign: 'center' , marginTop: '20px'}}>
+  //       <div style={{ marginBottom: '20px' }}>
+  //         <CasLoginButton />
+  //       </div>
+  //     </div>
+  //   </div>
+  // );
+
+
   return (
-    <div className="container" style={{ marginTop: '80px' }}>
-      {/* Center everything in its own container */}
-      <div style={{ textAlign: 'center' }}>
-        {/* Logo stacked above the button */}
-        <img
-          src={logo}
-          alt="Y-Pickup Logo"
-          style={{ maxWidth: '300px', marginBottom: '30px' }}
-        />
+    <div
+      className="container"
+      style={{
+        marginTop: '80px',
+        minHeight: '100vh',
+        backgroundImage: `url(${logo})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+        position: 'relative', // Make this the positioning context
+      }}
+    >
+      <div
+        style={{
+          position: 'absolute',
+          top: '50%', // Start at vertical center
+          left: '50%', // Center horizontally
+          transform: 'translate(-50%, 340px)', // Shift 20px below center, keep horizontally centered
+          textAlign: 'center',
+        }}
+      >
         <div style={{ marginBottom: '20px' }}>
           <CasLoginButton />
         </div>
       </div>
     </div>
   );
+
 };
 
 export default Login;

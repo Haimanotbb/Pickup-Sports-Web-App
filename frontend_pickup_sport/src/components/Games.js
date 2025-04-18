@@ -129,7 +129,8 @@ const Games = () => {
               </div>
               {isCreator && <span className="badge bg-secondary">Host</span>}
               {!isCreator && isJoined && (
-                <span className="badge bg-info text-dark">Joined</span>
+                <button type="button" class="btn btn-primary" disabled>Joined</button>
+                
               )}
               {!isCreator && !isJoined && (
                 <button
