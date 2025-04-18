@@ -6,10 +6,15 @@ const INTERVAL = 7000;
 
 const GameDetail = () => {
   const { id } = useParams();
-  const navigate = useNavigate();                            
+  const navigate = useNavigate();
   const [game, setGame] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);     
+  const [currentUser, setCurrentUser] = useState(null);
   const [error, setError] = useState('');
+
+  // figure out if I’m already in this game
+  const isJoined = game?.participants?.some(
+    p => p.user.id === currentUser?.id
+  );
 
   // Fetch both game details and current user profile
   useEffect(() => {
@@ -17,7 +22,7 @@ const GameDetail = () => {
       try {
         const [gRes, meRes] = await Promise.all([
           API.get(`games/${id}/`),
-          API.get('profile/'),                            
+          API.get('profile/'),
         ]);
         setGame(gRes.data);
         setCurrentUser(meRes.data);
@@ -60,6 +65,17 @@ const GameDetail = () => {
     }
   };
 
+  // new “leave” handler
+  const handleLeave = async () => {
+    try {
+      await API.post(`games/${id}/leave/`);
+      const refreshed = await API.get(`games/${id}/`);
+      setGame(refreshed.data);
+    } catch {
+      setError('Failed to leave the game.');
+    }
+  };
+
   if (error) {
     return (
       <div className="container mt-4">
@@ -94,14 +110,26 @@ const GameDetail = () => {
         <strong>Creator:</strong> {game.creator.name} ({game.creator.email})
       </p>
       {!isCreator && (
-        <button
-          className="btn btn-primary me-2"
-          disabled={game.current_state !== 'Open'}
-          onClick={handleJoin}
-        >
-          Join Game
-        </button>
+        <>
+          {isJoined ? (
+            <button
+              className="btn btn-warning me-2"
+              onClick={handleLeave}
+            >
+              Leave Game
+            </button>
+          ) : (
+            <button
+              className="btn btn-primary me-2"
+              disabled={game.current_state !== 'Open'}
+              onClick={handleJoin}
+            >
+              Join Game
+            </button>
+          )}
+        </>
       )}
+
       {isCreator && (
         <div className="mt-3">
           {game.current_state !== 'Completed' && (

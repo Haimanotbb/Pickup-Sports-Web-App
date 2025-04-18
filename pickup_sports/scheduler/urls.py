@@ -2,8 +2,6 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    # path('login/', views.login_user, name='login'),
-    # path('signup/', views.signup_user, name='signup'),
     path('profile/', views.profile_detail, name='profile_detail'),
     path('profile/update/', views.profile_update, name='profile_update'),
     path('profile/<int:id>/', views.public_profile, name='public_profile'),
@@ -16,4 +14,5 @@ urlpatterns = [
     path('games/<int:pk>/join/', views.join_game, name='join_game'),
     path('sports/', views.sport_list, name='sport_list'),
     path('my-archived-games/', views.my_archived_games, name='my_archived_games'),
+    path('games/<int:pk>/leave/', views.leave_game, name='leave-game'),
 ]
