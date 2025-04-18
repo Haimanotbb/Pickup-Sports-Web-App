@@ -14,8 +14,9 @@ const ProfileSetup = () => {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // 1) Fetch your existing profile so you can pre‐fill name/email/bio
+  // Fetch your existing profile and sport list
   useEffect(() => {
+    // profile
     API.get('profile/')
       .then(res => {
         const { name, email, bio, favorite_sports } = res.data;
@@ -23,11 +24,14 @@ const ProfileSetup = () => {
           name: name || '',
           email: email || '',
           bio: bio || '',
-          // map to just the IDs
           favorite_sports: favorite_sports.map(s => s.id)
         });
       })
       .catch(() => console.error('Failed to load profile'));
+    // sports list
+    API.get('sports/')
+      .then(res => setSportsList(res.data))
+      .catch(() => console.error('Failed to load sports'));
   }, []);
 
   const handleChange = (e) => {
@@ -117,10 +121,9 @@ const ProfileSetup = () => {
             Hold down Ctrl (Windows) or Cmd (Mac) to select multiple.
           </small>
         </div>
-
         <button type="submit" className="btn btn-primary">Save Profile</button>
-      </form>
-    </div>
+      </form >
+    </div >
   );
 };
 

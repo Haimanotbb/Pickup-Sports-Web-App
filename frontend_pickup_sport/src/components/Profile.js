@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import API from '../api/api';
+import { useNavigate } from 'react-router-dom'; import API from '../api/api';
 
 const Profile = () => {
   const [profile, setProfile] = useState(null);
   const [archived, setArchived] = useState([]);
   const [error, setError] = useState('');
+  const navigate = useNavigate();
 
   useEffect(() => {
     // 1) fetch your own profile
@@ -31,7 +32,15 @@ const Profile = () => {
 
   return (
     <div className="container mt-4">
-      <h2>My Profile</h2>
+      <div className="d-flex justify-content-between align-items-center">
+        <h2>My Profile</h2>
+        <button
+          className="btn btn-outline-primary"
+          onClick={() => navigate('/profile/setup')}
+        >
+          Edit Profile
+        </button>
+      </div>
       <p><strong>Name:</strong> {profile.name}</p>
       <p><strong>Email:</strong> {profile.email}</p>
       <p><strong>Bio:</strong> {profile.bio || 'No bio provided.'}</p>
@@ -42,7 +51,7 @@ const Profile = () => {
           : 'None'}
       </p>
 
-      <hr/>
+      <hr />
 
       <h3>My Past Games</h3>
       {archived.length > 0 ? (
