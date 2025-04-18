@@ -11,9 +11,10 @@ const Games = () => {
   const [error, setError] = useState('');
   const [filters, setFilters] = useState({ sport: '', location: '', time: '' });
 
-  // fetch user + games
   useEffect(() => {
-    API.get('profile/').then(r => setCurrent(r.data)).catch();
+    API.get('profile/')
+      .then(({ data }) => setCurrent(data))
+      .catch(() => {});
     fetchGames();
     const id = setInterval(fetchGames, INTERVAL);
     return () => clearInterval(id);
@@ -32,9 +33,9 @@ const Games = () => {
 
   const applyFilters = (list, f) => {
     let out = [...list];
-    if (f.sport) out = out.filter(g => g.sport.name.toLowerCase().includes(f.sport.toLowerCase()));
+    if (f.sport)    out = out.filter(g => g.sport.name.toLowerCase().includes(f.sport.toLowerCase()));
     if (f.location) out = out.filter(g => g.location.toLowerCase().includes(f.location.toLowerCase()));
-    if (f.time) out = out.filter(g => new Date(g.start_time).toLocaleString().includes(f.time));
+    if (f.time)     out = out.filter(g => new Date(g.start_time).toLocaleString().includes(f.time));
     setFiltered(out);
   };
 
@@ -46,23 +47,20 @@ const Games = () => {
   };
 
   const handleJoin = async game => {
-    // 1) Already in?
-    if (game.participants.some(p => p.user.id === currentUser.id)) {
-      return alert("✅ You’ve already joined that game.");
+    const isJoined = game.participants.some(p => p.user.id === currentUser?.id);
+    if (isJoined) {
+      return alert("You’ve already joined that game.");
     }
-    // 2) Only Open games
-    if (game.current_state.toLowerCase() !== 'open') {
-      return alert("⚠️ This game is already in progress or closed—can’t join.");
+    const state = game.current_state.toLowerCase();
+    if (state !== 'open') {
+      return alert(" Only games in the Open state can be joined.");
     }
-
-    // 3) Otherwise try the API
     try {
       await API.post(`games/${game.id}/join/`);
-      alert("🎉 You’ve joined!");
+      alert("Successfully joined!");
       fetchGames();
     } catch (err) {
-      const msg = err.response?.data?.error
-        || "❌ Something went wrong—please try again.";
+      const msg = err.response?.data?.error || 'Failed to join. Please try again.';
       alert(msg);
     }
   };
@@ -70,58 +68,74 @@ const Games = () => {
   return (
     <div className="container mt-4">
       <div className="mb-3 d-flex">
-        <input name="sport" placeholder="Sport" className="form-control me-2" style={{ width: 200 }}
-          value={filters.sport} onChange={handleFilterChange} />
-        <input name="location" placeholder="Location" className="form-control me-2" style={{ width: 200 }}
-          value={filters.location} onChange={handleFilterChange} />
-        <input name="time" placeholder="Time" className="form-control" style={{ width: 200 }}
-          value={filters.time} onChange={handleFilterChange} />
+        <input
+          name="sport"
+          placeholder="Sport"
+          className="form-control me-2"
+          style={{ width: 200 }}
+          value={filters.sport}
+          onChange={handleFilterChange}
+        />
+        <input
+          name="location"
+          placeholder="Location"
+          className="form-control me-2"
+          style={{ width: 200 }}
+          value={filters.location}
+          onChange={handleFilterChange}
+        />
+        <input
+          name="time"
+          placeholder="Time"
+          className="form-control"
+          style={{ width: 200 }}
+          value={filters.time}
+          onChange={handleFilterChange}
+        />
       </div>
 
       {error && <div className="alert alert-danger">{error}</div>}
-
-      <ul className="list-group">
+      <ul className="list-group mb-3">
         {filteredGames.map(game => {
-          const state = game.current_state.toLowerCase();
-          const canJoin = state === 'open';
+          const state = game.current_state;
+          const lc = state.toLowerCase();
           const isJoined = game.participants.some(p => p.user.id === currentUser?.id);
           const isCreator = game.creator.id === currentUser?.id;
 
           return (
-            <li key={game.id}
-              className="list-group-item d-flex justify-content-between align-items-center">
-
+            <li
+              key={game.id}
+              className="list-group-item d-flex justify-content-between align-items-center"
+            >
               <div>
                 <Link to={`/games/${game.id}`}>
                   <strong>{game.name}</strong> ({game.sport.name}) at{' '}
                   {new Date(game.start_time).toLocaleString()}
                 </Link>
                 <div className="mt-1">
-                  <span className={
-                    'badge ' +
-                    (game.current_state === 'Open' ? 'bg-success' :
-                      game.current_state === 'In Progress' ? 'bg-primary' :
-                        'bg-danger')
-                  }>
-                    {game.current_state}
+                  <span
+                    className={
+                      'badge ' +
+                      (state === 'Open'
+                        ? 'bg-success'
+                        : state === 'In Progress'
+                        ? 'bg-primary'
+                        : 'bg-danger')
+                    }
+                  >
+                    {state}
                   </span>
                 </div>
               </div>
-
-              {/* creator sees no join/leave */}
               {isCreator && <span className="badge bg-secondary">Host</span>}
-
-              {/* joined users get a “Joined” pill */}
               {!isCreator && isJoined && (
                 <span className="badge bg-info text-dark">Joined</span>
               )}
-
-              {/* eligible users get the action button */}
               {!isCreator && !isJoined && (
                 <button
                   className="btn btn-primary"
-                  disabled={!canJoin}
-                  title={!canJoin ? "Only Open games can be joined" : ""}
+                  disabled={lc !== 'open'}
+                  title={lc === 'open' ? '' : 'Only Open games can be joined'}
                   onClick={() => handleJoin(game)}
                 >
                   Join
@@ -131,6 +145,11 @@ const Games = () => {
           );
         })}
       </ul>
+      <div className="d-flex justify-content-end">
+        <Link to="/create-game" className="btn btn-success">
+          Create New Game
+        </Link>
+      </div>
     </div>
   );
 };
