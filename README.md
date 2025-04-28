@@ -7,15 +7,14 @@ __Scroll to the bottom for testing instructions.__
 ## Features
 
 ### User Authentication
-•⁠  ⁠*Login*: Log in with existing accounts using email and password.
-•⁠  ⁠*Signup*: Create a new account and obtain an authentication token.
+- Log in with CAS (For Yale users only)
+- First time users get directed to profile set up while others get directed to the games page. 
 
 ### Game Creation
 •⁠  ⁠Authenticated users can create a new game by specifying:
   - Sport or game type
   - Location
   - Date and time
-  - Status
   - Skill level
 
 ### Game Browsing
@@ -27,11 +26,16 @@ __Scroll to the bottom for testing instructions.__
 ### Joining Games
 •⁠  ⁠Authenticated users can join any available game.
 •⁠  ⁠The app prevents duplicate joins if the user is already a participant.
+ - Participants are able to leave a game once they joined.
+ - Creators of a game can delete or cancel the game. Canceling results in the game still being listed in the games list or archived games list. Deleting will permanently remove the game from the web app. 
 
 ### Participants List
 •⁠  ⁠Each game detail page displays a list of participants who have joined.
+ - Each participant's profiles are visible (clickable) from the game details page.
 
-## Tech Stack
+### Authomatic State Updates 
+ - The state of games changes in real time from "Open" to "In progress" to "Completed"
+ - Cancelled games and completed games are archived in the creator user's My Profile page.
 
 ### Backend
 •⁠  ⁠*Framework*: Django (Python)
@@ -48,27 +52,21 @@ __Scroll to the bottom for testing instructions.__
 •⁠  ⁠*Navigation*: React Router for client-side routing.
 •⁠  ⁠*Styling*: Bootstrap / React Bootstrap for responsive UI design.
 
-## Testing Alpha
+## Testing Beta
 
-Follow these steps to set up and test the Minimum Viable Product (MVP) locally.
+Follow these steps to run the web app locally
 
 ### Prerequisites
 •⁠  ⁠Ensure you have the following installed:
   - Python (for the backend)
   - Node.js and npm (for the frontend)
-
 •⁠  ⁠Clone the repository to your local machine.
 
 ### Step 1: Set Up and Run the Backend (Server)
-1.⁠ ⁠Open a terminal and navigate to the project root directory.
+1.⁠ ⁠Open a terminal and navigate to the project root directory
 2.⁠ ⁠Install the required Python dependencies: pip install -r requirements.txt
 3. cd pickup_sports
 4. Run python manage.py runserver 
-
-### IMPORTANT:
-__If step 4 is not working please text us at 470-923-1554 to get new ip address.__ We are running the database server on a team-mates computer, whose ip address occasionally changes. We will provide you with the updated IP address. Then, from the project root directory, navigate to pickup_sports/settings.py and change the hostname address in the "Databases" object:
-
-'HOST': 'ADD NEW IP ADDRESS HERE'
 
 ### Step 2: Set Up and Run Frontend
 (from project root dir:)

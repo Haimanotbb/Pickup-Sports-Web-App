@@ -1,7 +1,6 @@
 from django.db import models
 from django.conf import settings
-
-
+from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 
 
@@ -29,9 +28,7 @@ class Sport(models.Model):
 class Game(models.Model):
     STATUS_CHOICES = [
         ('open', 'Open'),
-        ('full', 'Full'),
         ('cancelled', 'Cancelled'),
-        ('completed', 'Completed'),
     ]
 
     SKILL_LEVEL_CHOICES = [
@@ -40,7 +37,8 @@ class Game(models.Model):
         ('advanced', 'Advanced'),
         ('all', 'All Levels'),
     ]
-
+    
+    name = models.CharField(max_length=200, blank=True)
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_games')
     location = models.CharField(max_length=100)
@@ -62,7 +60,21 @@ class Game(models.Model):
 
     def __str__(self):
         return f"{self.sport} at {self.location} on {self.start_time.strftime('%Y-%m-%d %H:%M')}"
-
+    
+    def current_state(self):
+        now = timezone.now()
+        if self.status == "cancelled":
+            if now < self.end_time:
+                return "cancelled"
+            else:
+                return "cancelled"
+        else:
+            if now < self.start_time:
+                return "Open"
+            elif self.start_time <= now <= self.end_time:
+                return "In_progress"
+            else:
+                return "Completed"
     class Meta:
         verbose_name_plural = "Games"
         ordering = ['start_time']

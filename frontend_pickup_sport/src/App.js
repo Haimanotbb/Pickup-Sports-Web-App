@@ -9,6 +9,8 @@ import GameDetail from './components/GameDetail';
 import Profile from './components/Profile';
 import PublicProfile from './components/PublicProfile';
 import ProfileSetup from './components/ProfileSetup';
+import MyGames from './components/MyGames';
+import EditGame from './components/EditGame';
 
 function AppContent() {
   const location = useLocation();
@@ -35,9 +37,11 @@ function AppContent() {
         <Route path="/games" element={<Games />} />
         <Route path="/games/:id" element={<GameDetail />} />
         <Route path="/create-game" element={<CreateGame />} />
+        <Route path="/my-games" element={<MyGames />} />
         <Route path="/profile" element={<Profile />} />
         <Route path="/profile/:id" element={<PublicProfile />} />
         <Route path="/profile/setup" element={<ProfileSetup />} />
+        <Route path="/games/:id/edit" element={<EditGame />} />
       </Routes>
     </>
   );

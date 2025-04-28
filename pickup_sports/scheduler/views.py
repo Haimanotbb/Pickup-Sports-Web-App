@@ -15,6 +15,7 @@ import xml.etree.ElementTree as ET
 from django.http import HttpResponse
 import random
 import string
+from django.utils import timezone
 
 
 def make_random_password(length=8):
@@ -126,54 +127,44 @@ def profile_update(request):
         return Response(full_serializer.data, status=status.HTTP_200_OK)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Sign Up
 
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def leave_game(request, pk):
+    """
+    POST /api/games/<pk>/leave/
+    Only non‑creators may leave—a creator must cancel or delete instead.
+    """
+    try:
+        game = Game.objects.get(pk=pk)
+    except Game.DoesNotExist:
+        return Response({"error": "Game not found"}, status=status.HTTP_404_NOT_FOUND)
 
-# @api_view(['POST'])
-# @permission_classes([AllowAny])
-# def signup_user(request):
-#     email = request.data.get('email')
-#     password = request.data.get('password')
-#     name = request.data.get('name', '')
+    # Block the creator
+    if game.creator == request.user:
+        return Response(
+            {"error": "Creators can’t leave their own game. You can cancel or delete it instead."},
+            status=status.HTTP_403_FORBIDDEN
+        )
 
-#     # Check if user already exists
-#     User = get_user_model()
-#     if User.objects.filter(email=email).exists():
-#         return Response({"error": "User with this email already exists."},
-#                         status=status.HTTP_400_BAD_REQUEST)
+    # Block if they never joined
+    if not Participant.objects.filter(user=request.user, game=game).exists():
+        return Response(
+            {"error": "You haven’t joined this game."},
+            status=status.HTTP_400_BAD_REQUEST
+        )
 
-#     # Create the user
-#     user = User.objects.create_user(
-#         username=email,
-#         email=email,
-#         password=password,
-#         name=name
-#     )
+    # Otherwise remove the participation
+    Participant.objects.filter(user=request.user, game=game).delete()
+    return Response({"message": "Left the game."}, status=status.HTTP_200_OK)
 
-#     # Generate token
-#     token, _ = Token.objects.get_or_create(user=user)
-#     return Response({"token": token.key}, status=status.HTTP_201_CREATED)
-
-
-# # Login to get a token (POST /api/login/)
-# @api_view(['POST'])
-# @permission_classes([AllowAny])  # Allow anyone to access this endpoint
-# def login_user(request):
-#     email = request.data.get('email')
-#     password = request.data.get('password')
-#     #user = authenticate(request, email=email, password=password)
-#     user = authenticate(request, username=email, password=password)
-
-#     if user is not None:
-#         token, created = Token.objects.get_or_create(user=user)
-#         return Response({'token': token.key}, status=status.HTTP_200_OK)
-#     return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
 
 # List all games (GET /api/games/)
 @api_view(['GET'])
-@permission_classes([AllowAny])  
+@permission_classes([AllowAny])
 def game_list(request):
-    games = Game.objects.all()
+    now = timezone.now()
+    games = Game.objects.filter(end_time__gte=now)
     sport_id = request.query_params.get('sport_id')
     start_date = request.query_params.get('start_date')
     if sport_id:
@@ -183,23 +174,35 @@ def game_list(request):
     serializer = GameSerializer(games, many=True)
     return Response(serializer.data)
 
+
 # Create a new game (POST /api/games/create/)
-
-
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def game_create(request):
     serializer = GameSerializer(data=request.data)
     if serializer.is_valid():
-        serializer.save(creator=request.user)  
+        serializer.save(creator=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-# Retrieve a single game (GET /api/games/<pk>/)
+
+# Cancel a game (POST /api/games/<pk>/cancel/)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cancel_game(request, pk):
+    try:
+        game = Game.objects.get(pk=pk)
+    except Game.DoesNotExist:
+        return Response({"error": "Game not found."}, status=status.HTTP_404_NOT_FOUND)
+    if game.creator != request.user:
+        return Response({"error": "You are not authorized to cancel this game."}, status=status.HTTP_403_FORBIDDEN)
+    game.status = 'cancelled'
+    game.save()
+    return Response({"message": "Game cancelled. It will remain cancelled until the scheduled end time."}, status=status.HTTP_200_OK)
 
 
 @api_view(['GET'])
-@permission_classes([AllowAny]) 
+@permission_classes([AllowAny])
 def game_detail(request, pk):
     try:
         game = Game.objects.get(pk=pk)
@@ -208,11 +211,10 @@ def game_detail(request, pk):
     serializer = GameSerializer(game)
     return Response(serializer.data)
 
+
 # Update a game (PUT /api/games/<pk>/update/)
-
-
 @api_view(['PUT'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def game_update(request, pk):
     try:
         game = Game.objects.get(pk=pk)
@@ -226,11 +228,10 @@ def game_update(request, pk):
         return Response(serializer.data)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 # Delete a game (DELETE /api/games/<pk>/delete/)
-
-
 @api_view(['DELETE'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def game_delete(request, pk):
     try:
         game = Game.objects.get(pk=pk)
@@ -241,16 +242,31 @@ def game_delete(request, pk):
     game.delete()
     return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+# view previously created games
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def my_archived_games(request):
+    now = timezone.now()
+    games = Game.objects.filter(creator=request.user, end_time__lte=now)
+    serializer = GameSerializer(games, many=True)
+    return Response(serializer.data)
+
+
 # Join a game (POST /api/games/<pk>/join/)
-
-
 @api_view(['POST'])
-@permission_classes([IsAuthenticated]) 
+@permission_classes([IsAuthenticated])
 def join_game(request, pk):
     try:
         game = Game.objects.get(pk=pk)
     except Game.DoesNotExist:
         return Response({"error": "Game not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    if game.creator == request.user:
+        return Response(
+            {"error": "Creators cannot join their own game."},
+            status=status.HTTP_403_FORBIDDEN
+        )
 
     if game.participant_set.filter(user=request.user).exists():
         return Response({"error": "You have already joined this game"}, status=status.HTTP_400_BAD_REQUEST)
@@ -258,11 +274,10 @@ def join_game(request, pk):
     Participant.objects.create(user=request.user, game=game)
     return Response({"message": "Successfully joined the game"}, status=status.HTTP_200_OK)
 
+
 # List all sports (GET /api/sports/)
-
-
 @api_view(['GET'])
-@permission_classes([AllowAny])  
+@permission_classes([AllowAny])
 def sport_list(request):
     sports = Sport.objects.all()
     serializer = SportSerializer(sports, many=True)

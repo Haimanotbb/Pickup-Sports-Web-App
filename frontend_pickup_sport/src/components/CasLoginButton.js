@@ -7,7 +7,7 @@ const CasLoginButton = () => {
 
     return (
         <button type="button" className="btn btn-secondary" onClick={handleCasLogin}>
-            Login with CAS
+            Login
         </button>
     );
 };
