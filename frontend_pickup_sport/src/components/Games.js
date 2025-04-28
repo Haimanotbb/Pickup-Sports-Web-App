@@ -1,4 +1,3 @@
-// src/components/Games.jsx
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -53,11 +52,15 @@ export default function Games() {
     return () => clearInterval(id);
   }, []);
 
+  // Apply filters whenever games or filters change
+  useEffect(() => {
+    applyFilters(games);
+  }, [games, filters]);
+
   async function fetchGames() {
     try {
       const { data } = await API.get('games/');
       setGames(data);
-      applyFilters(data);
       setError('');
     } catch {
       setError('Unable to load games.');
@@ -75,7 +78,6 @@ export default function Games() {
 
   const handleFilterChange = e => {
     setFilters(f => ({ ...f, [e.target.name]: e.target.value }));
-    applyFilters(games);
   };
 
   const handleJoinLeave = async (game, join) => {
@@ -91,6 +93,7 @@ export default function Games() {
     await API.post(`games/${game.id}/cancel/`);
     fetchGames();
   };
+
   const handleDelete = async (game) => {
     await API.delete(`games/${game.id}/delete/`);
     fetchGames();
@@ -99,7 +102,7 @@ export default function Games() {
   return (
     <main className="container mt-5">
       <header className="mb-4">
-        <h1 className="display-6">Find &amp; Join a Game</h1>
+        <h1 className="display-6">Find & Join a Game</h1>
         <p className="lead text-muted">Browse upcoming sports events in your area</p>
       </header>
 
