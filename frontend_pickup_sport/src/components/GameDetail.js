@@ -1,168 +1,148 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';  // ← UPDATED: import useNavigate
+import { Link, useParams, useNavigate } from 'react-router-dom';
+import {
+  FaRegCheckCircle,
+  FaPlayCircle,
+  FaTimesCircle,
+  FaSignInAlt,
+  FaSignOutAlt
+} from 'react-icons/fa';
 import API from '../api/api';
+import '../index.css'; // basic styles
 
 const INTERVAL = 7000;
+
+const statusMap = {
+  open: { text: 'Open', class: 'bg-success', icon: <FaRegCheckCircle className="me-1" aria-hidden /> },
+  in_progress: { text: 'In Progress', class: 'bg-warning text-dark', icon: <FaPlayCircle className="me-1" aria-hidden /> },
+  cancelled: { text: 'Cancelled', class: 'bg-danger', icon: <FaTimesCircle className="me-1" aria-hidden /> }
+};
 
 const GameDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [game, setGame] = useState(null);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [user, setUser] = useState(null);
   const [error, setError] = useState('');
 
-  // figure out if I’m already in this game
-  const isJoined = game?.participants?.some(
-    p => p.user.id === currentUser?.id
-  );
+  // fetch both game & profile
+  const fetchDetail = async () => {
+    try {
+      const [gRes, uRes] = await Promise.all([
+        API.get(`games/${id}/`),
+        API.get('profile/')
+      ]);
+      setGame(gRes.data);
+      setUser(uRes.data);
+      setError('');
+    } catch {
+      setError('Failed to load game details.');
+    }
+  };
 
-  // Fetch both game details and current user profile
   useEffect(() => {
-    const fetchAll = async () => {
-      try {
-        const [gRes, meRes] = await Promise.all([
-          API.get(`games/${id}/`),
-          API.get('profile/'),
-        ]);
-        setGame(gRes.data);
-        setCurrentUser(meRes.data);
-      } catch {
-        setError('Failed to fetch game or user details.');
-      }
-    };
-    fetchAll();
-    const intervalId = setInterval(fetchAll, INTERVAL);
-    return () => clearInterval(intervalId);
+    fetchDetail();
+    const tid = setInterval(fetchDetail, INTERVAL);
+    return () => clearInterval(tid);
   }, [id]);
 
-  // Action handlers for the creator
-  const handleCancel = async () => {
-    await API.post(`games/${id}/cancel/`);
-    // re-fetch to get updated current_state
-    const refreshed = await API.get(`games/${id}/`);
-    setGame(refreshed.data);
-  };
+  if (error) return <div className="container mt-4"><div className="alert alert-danger">{error}</div></div>;
+  if (!game || !user) return <div className="container mt-4">Loading...</div>;
 
-  const handleEdit = () => {
-    navigate(`/games/${id}/edit`);
-  };
+  const raw = game.current_state.toLowerCase();
+  const info = statusMap[raw] || { text: game.current_state, class: 'bg-secondary', icon: null };
+  const isCreator = game.creator.id === user.id;
+  const joined = game.participants.some(p => p.user.id === user.id);
 
-  const handleDelete = async () => {
-    await API.delete(`games/${id}/delete/`);
-    navigate('/games');
-  };
-  const handleJoin = async () => {
-    if (game.current_state !== 'Open') {
-      alert('Only Open games can be joined.');
-      return;
-    }
-    try {
-      await API.post(`games/${id}/join/`);
-      const refreshed = await API.get(`games/${id}/`);
-      setGame(refreshed.data);
-    } catch {
-      setError('Failed to join the game.');
-    }
-  };
-
-  // new “leave” handler
-  const handleLeave = async () => {
-    try {
-      await API.post(`games/${id}/leave/`);
-      const refreshed = await API.get(`games/${id}/`);
-      setGame(refreshed.data);
-    } catch {
-      setError('Failed to leave the game.');
-    }
-  };
-
-  if (error) {
-    return (
-      <div className="container mt-4">
-        <div className="alert alert-danger">{error}</div>
-      </div>
-    );
-  }
-  if (!game || !currentUser) {
-    return <div className="container mt-4">Loading...</div>;
-  }
-
-  // Check if I am the creator
-  const isCreator = game.creator.id === currentUser.id;
+  const handleJoin = async () => { await API.post(`games/${id}/join/`); fetchDetail(); };
+  const handleLeave = async () => { await API.post(`games/${id}/leave/`); fetchDetail(); };
 
   return (
     <div className="container mt-4">
-      <h2>{game.name}</h2>
-
-      <p><strong>Sport:</strong> {game.sport.name}</p>
-      <p><strong>Location:</strong> {game.location}</p>
-      <p>
-        <strong>Start Time:</strong>{' '}
-        {new Date(game.start_time).toLocaleString()}
-      </p>
-      <p>
-        <strong>End Time:</strong>{' '}
-        {new Date(game.end_time).toLocaleString()}
-      </p>
-      <p><strong>State:</strong> {game.current_state}</p>
-      <p><strong>Skill Level:</strong> {game.skill_level}</p>
-      <p>
-        <strong>Creator:</strong> {game.creator.name} ({game.creator.email})
-      </p>
-      {!isCreator && (
-        <>
-          {isJoined ? (
-            <button
-              className="btn btn-warning me-2"
-              onClick={handleLeave}
-            >
-              Leave Game
-            </button>
-          ) : (
-            <button
-              className="btn btn-primary me-2"
-              disabled={game.current_state !== 'Open'}
-              onClick={handleJoin}
-            >
-              Join Game
-            </button>
-          )}
-        </>
-      )}
-
-      {isCreator && (
-        <div className="mt-3">
-          {game.current_state !== 'Completed' && (
-            <button className="btn btn-warning me-2" onClick={handleCancel}>
-              Cancel Game
-            </button>
-          )}
-          <button className="btn btn-secondary me-2" onClick={handleEdit}>
-            Edit Game
-          </button>
-          <button className="btn btn-danger" onClick={handleDelete}>
-            Delete Game
-          </button>
+      <div className="card shadow mb-4">
+        <div className="card-header d-flex justify-content-between align-items-center">
+          <h2 className="h5 mb-0">{game.name}</h2>
+          <Link to="/games" className="btn btn-link">← Back to Games</Link>
         </div>
-      )}
 
-      <hr />
-      {game.participants && game.participants.length > 0 ? (
-        <>
-          <h4>Participants</h4>
-          <ul className="list-group">
-            {game.participants.map((p) => (
-              <li key={p.id} className="list-group-item">
-                <Link to={`/profile/${p.user.id}`}>
-                  {p.user.name || p.user.email}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </>
-      ) : (
-        <p>No participants yet.</p>
-      )}
+        <div className="card-body">
+          <div className="row gx-4">
+            <div className="col-md-6">
+              <dl className="row">
+                <dt className="col-sm-4">Sport</dt><dd className="col-sm-8">{game.sport.name}</dd>
+                <dt className="col-sm-4">Location</dt><dd className="col-sm-8">{game.location}</dd>
+                <dt className="col-sm-4">Start Time</dt><dd className="col-sm-8">{new Date(game.start_time).toLocaleString()}</dd>
+                <dt className="col-sm-4">End Time</dt><dd className="col-sm-8">{new Date(game.end_time).toLocaleString()}</dd>
+                <dt className="col-sm-4">Skill</dt><dd className="col-sm-8">{game.skill_level}</dd>
+                <dt className="col-sm-4">Creator</dt><dd className="col-sm-8">{game.creator.name}</dd>
+              </dl>
+            </div>
+            <div className="col-md-6 text-center">
+              {game.image_url
+                ? <img src={game.image_url} className="img-fluid rounded mb-3" alt={`${game.name}`} />
+                : <div className="border rounded p-5 text-muted">No image provided</div>
+              }
+              <div className="mt-3">
+                <span className={`badge rounded-pill fw-semibold ${info.class}`}>
+                  {info.icon}{info.text}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-4">
+            <h5 className="h6">Participants ({game.participants.length})</h5>
+            <ul className="list-group">
+              {game.participants.map(p => (
+                <li key={p.id} className="list-group-item">
+                  <Link to={`/profile/${p.user.id}`}>{p.user.name || p.user.email}</Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+
+        <div className="card-footer d-flex justify-content-end">
+          {!isCreator ? (
+            joined ? (
+              <button className="btn btn-outline-danger me-2" onClick={handleLeave}>
+                Leave Game
+              </button>
+            ) : (
+              <button
+                className="btn btn-primary me-2"
+                disabled={game.current_state !== 'Open'}
+                onClick={handleJoin}
+              >
+                Join Game
+              </button>
+            )
+          ) : (
+            <>
+              {game.current_state !== 'Completed' && (
+                <button
+                  className="btn btn-warning me-2"
+                  onClick={async () => { await API.post(`games/${id}/cancel/`); fetchDetail(); }}
+                >
+                  Cancel Game
+                </button>
+              )}
+              <button
+                className="btn btn-secondary me-2"
+                onClick={() => navigate(`/games/${id}/edit`)}
+              >
+                Edit Game
+              </button>
+              <button
+                className="btn btn-danger"
+                onClick={async () => { await API.delete(`games/${id}/delete/`); navigate('/games'); }}
+              >
+                Delete Game
+              </button>
+            </>
+          )}
+        </div>
+      </div>
     </div>
   );
 };
