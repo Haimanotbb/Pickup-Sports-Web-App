@@ -1,11 +1,12 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework import status, viewsets, permissions
 from django.contrib.auth import authenticate, get_user_model
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import IsAuthenticated, AllowAny,IsAuthenticatedOrReadOnly
+
 from rest_framework.authtoken.models import Token
-from .models import Game, Participant, Sport
-from .serializers import GameSerializer, SportSerializer, ParticipantSerializer, CustomUserProfileUpdateSerializer, UserProfileSerializer
+from .models import Game, Participant, Sport, Comment
+from .serializers import GameSerializer, SportSerializer, ParticipantSerializer, CustomUserProfileUpdateSerializer, UserProfileSerializer, CommentSerializer
 from django.contrib.auth import login, logout, get_user_model
 from django.shortcuts import redirect
 from urllib.parse import urlencode
@@ -282,3 +283,39 @@ def sport_list(request):
     sports = Sport.objects.all()
     serializer = SportSerializer(sports, many=True)
     return Response(serializer.data)
+
+
+
+@api_view(['GET','POST'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def game_comments(request, game_pk):
+    """
+    GET  /api/games/{game_pk}/comments/   → list
+    POST /api/games/{game_pk}/comments/   → create
+    """
+    try:
+        game = Game.objects.get(pk=game_pk)
+    except Game.DoesNotExist:
+        return Response({"error": "Game not found."},
+                        status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        qs = Comment.objects.filter(game=game).order_by('created')
+        serializer = CommentSerializer(qs, many=True)
+        return Response(serializer.data)
+    user = request.user
+    is_creator   = (game.creator == user)
+    is_participant = Participant.objects.filter(game=game, user=user).exists()
+    if not (is_creator or is_participant):
+        return Response(
+          {"error": "Only the game creator or participants may comment."},
+          status=status.HTTP_403_FORBIDDEN
+        )
+    # POST
+    data = request.data.copy()
+    data['game'] = game_pk
+    serializer = CommentSerializer(data=data, context={'request': request})
+    if serializer.is_valid():
+        serializer.save(author=request.user)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

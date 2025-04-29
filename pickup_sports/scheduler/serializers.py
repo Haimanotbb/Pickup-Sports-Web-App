@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import CustomUser, Sport, Game, Participant
+from .models import CustomUser, Sport, Game, Participant, Comment
 from django.conf import settings
 
 # Serializer for CustomUser
@@ -55,9 +55,17 @@ class ParticipantSerializer(serializers.ModelSerializer):
         fields = ['id', 'user']
         read_only_fields = ['id']
 
+# serializer for comments section
+class CommentSerializer(serializers.ModelSerializer):
+    author = serializers.ReadOnlyField(source='author.username')
+    author_name     = serializers.ReadOnlyField(source='author.name')
+
+    class Meta:
+        model = Comment
+        fields = ['id', 'game', 'author', 'author_name', 'text', 'created']
+        read_only_fields = ['id', 'author_username', 'created']
+
 # Serializer for Game
-
-
 class GameSerializer(serializers.ModelSerializer):
     creator = CustomUserSerializer(read_only=True)
     sport    = SportSerializer(read_only=True)
@@ -66,6 +74,7 @@ class GameSerializer(serializers.ModelSerializer):
         queryset=Sport.objects.all(), source='sport', write_only=True
     )
     current_state = serializers.SerializerMethodField()
+    comments = CommentSerializer(many=True, read_only=True)
 
     class Meta:
         model = Game
@@ -82,8 +91,9 @@ class GameSerializer(serializers.ModelSerializer):
             'sport',
             'sport_id',
             'current_state',  
+            'comments'
         ]
-        read_only_fields = ['id', 'creator', 'participants', 'sport', 'current_state']
+        read_only_fields = ['id', 'creator', 'participants', 'sport', 'current_state','comments']
 
     def get_current_state(self, obj):
         return obj.current_state()

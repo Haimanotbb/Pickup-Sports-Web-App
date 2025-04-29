@@ -80,6 +80,15 @@ class Game(models.Model):
         ordering = ['start_time']
 
 
+class Comment(models.Model):
+    game    = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='comments')
+    author  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    text    = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)   
+    def __str__(self):
+        return f"{self.author.username} on {self.game.id}"
+
+
 class Participant(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,

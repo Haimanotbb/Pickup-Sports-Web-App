@@ -15,4 +15,7 @@ urlpatterns = [
     path('sports/', views.sport_list, name='sport_list'),
     path('my-archived-games/', views.my_archived_games, name='my_archived_games'),
     path('games/<int:pk>/leave/', views.leave_game, name='leave-game'),
+    path(
+      'games/<int:game_pk>/comments/', views.game_comments,name='game-comments'
+    ),
 ]
