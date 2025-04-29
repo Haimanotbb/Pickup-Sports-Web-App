@@ -42,7 +42,7 @@ export default function Games() {
   const [filtered, setFiltered] = useState([]);
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
-  const [filters, setFilters] = useState({ sport: '', location: '', time: '' });
+  const [filters, setFilters] = useState({ sport: '', location: '', time: '', name: ''});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -71,7 +71,8 @@ export default function Games() {
     const out = list.filter(g =>
       (!filters.sport || g.sport.name.toLowerCase().includes(filters.sport.toLowerCase())) &&
       (!filters.location || g.location.toLowerCase().includes(filters.location.toLowerCase())) &&
-      (!filters.time || formatSexy(g.start_time).toLowerCase().includes(filters.time.toLowerCase()))
+      (!filters.time || formatSexy(g.start_time).toLowerCase().includes(filters.time.toLowerCase())) &&
+      (!filters.name || g.name.toLowerCase().includes(filters.name.toLowerCase()))
     );
     setFiltered(out);
   }
@@ -107,8 +108,8 @@ export default function Games() {
       </header>
 
       <form className="row g-3 mb-4">
-        {['sport', 'location', 'time'].map((field, i) => (
-          <div key={i} className="col-md-4">
+        {['name','sport', 'location', 'time'].map((field, i) => (
+          <div key={i} className="col-md-3">
             <label htmlFor={`${field}Filter`} className="form-label text-secondary">
               {field.charAt(0).toUpperCase() + field.slice(1)}
             </label>
@@ -117,7 +118,7 @@ export default function Games() {
               name={field}
               type="text"
               className="form-control"
-              placeholder={field === 'time' ? 'e.g. Tuesday' : 'Enter ' + field}
+              placeholder={'Enter ' + field}
               value={filters[field]}
               onChange={handleFilterChange}
             />
