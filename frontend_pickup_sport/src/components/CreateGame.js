@@ -1,19 +1,26 @@
+// src/components/CreateGame.js
+
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
+import LocationPicker from './LocationPicker';
 
-const CreateGame = () => {
+export default function CreateGame() {
+  const navigate = useNavigate();
+
+  // formData now includes location & coords
   const [formData, setFormData] = useState({
     name: '',
     sport_id: '',
     location: '',
+    latitude: null,
+    longitude: null,
     start_time: '',
     end_time: '',
     skill_level: 'all',
   });
-  const [sports, setSports] = useState([]); 
-  const [error, setError] = useState('');
-  const navigate = useNavigate();
+  const [sports, setSports] = useState([]);
+  const [error, setError]   = useState('');
 
   useEffect(() => {
     if (!localStorage.getItem('token')) {
@@ -21,37 +28,51 @@ const CreateGame = () => {
     }
   }, [navigate]);
 
-  //fetch sports list
   useEffect(() => {
-    const fetchSports = async () => {
-      try {
-        const response = await API.get('sports/');
-        setSports(response.data);
-      } catch (err) {
-        setError('Failed to fetch sports.');
-      }
-    };
-    fetchSports();
+    API.get('sports/')
+       .then(r => setSports(r.data))
+       .catch(() => setError('Failed to fetch sports.'));
   }, []);
 
-  const handleChange = (e) => {
-    setFormData({...formData, [e.target.name]: e.target.value});
+  const handleChange = e => {
+    const { name, value } = e.target;
+    setFormData(fd => ({ ...fd, [name]: value }));
   };
 
-  const handleSubmit = async (e) => {
+  // const handleSubmit = async e => {
+  //   e.preventDefault();
+  //   try {
+  //     // include formData.location, latitude, longitude
+  //     await API.post('games/create/', {
+  //       ...formData,
+  //       start_time: new Date(formData.start_time).toISOString(),
+  //       end_time:   new Date(formData.end_time).toISOString(),
+  //     });
+  //     navigate('/games');
+  //   } catch {
+  //     setError('Failed to create game.');
+  //   }
+  // };
+  const handleSubmit = async e => {
     e.preventDefault();
     try {
       const payload = {
         ...formData,
         start_time: new Date(formData.start_time).toISOString(),
-        end_time: new Date(formData.end_time).toISOString(),
+        end_time:   new Date(formData.end_time).toISOString(),
       };
       await API.post('games/create/', payload);
       navigate('/games');
     } catch (err) {
-      setError('Failed to create game.');
+      console.error('CreateGame error payload:', err.response?.data);
+      setError(
+        err.response?.data
+          ? JSON.stringify(err.response.data)
+          : 'Failed to create game.'
+      );
     }
   };
+  
 
   return (
     <div className="container mt-4">
@@ -61,8 +82,7 @@ const CreateGame = () => {
         <div className="mb-3">
           <label>Game Name:</label>
           <input
-            type="text"
-            name="name"
+            type="text" name="name"
             className="form-control"
             value={formData.name}
             onChange={handleChange}
@@ -71,7 +91,7 @@ const CreateGame = () => {
         </div>
         <div className="mb-3">
           <label>Sport:</label>
-          <select 
+          <select
             name="sport_id"
             className="form-control"
             value={formData.sport_id}
@@ -79,52 +99,45 @@ const CreateGame = () => {
             required
           >
             <option value="">Select a sport</option>
-            {sports.map((sport) => (
-              <option key={sport.id} value={sport.id}>
-                {sport.name}
-              </option>
+            {sports.map(s => (
+              <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
         </div>
-
         <div className="mb-3">
-          <label>Location:</label>
-          <input 
-            type="text" 
-            name="location" 
-            className="form-control" 
-            value={formData.location}
-            onChange={handleChange}
-            required 
+          <label className="form-label">Pick a Location:</label>
+          <LocationPicker
+            location={formData.location}
+            setLocation={loc => setFormData(fd=>({...fd,location:loc}))}
+            setLatLng={({ lat, lng }) =>
+              setFormData(fd => ({ ...fd, latitude: lat, longitude: lng }))}
           />
         </div>
         <div className="mb-3">
           <label>Start Time:</label>
-          <input 
-            type="datetime-local" 
-            name="start_time" 
-            className="form-control" 
+          <input
+            type="datetime-local" name="start_time"
+            className="form-control"
             value={formData.start_time}
             onChange={handleChange}
-            required 
+            required
           />
         </div>
         <div className="mb-3">
           <label>End Time:</label>
-          <input 
-            type="datetime-local" 
-            name="end_time" 
-            className="form-control" 
+          <input
+            type="datetime-local" name="end_time"
+            className="form-control"
             value={formData.end_time}
             onChange={handleChange}
-            required 
+            required
           />
         </div>
         <div className="mb-3">
           <label>Skill Level:</label>
-          <select 
-            name="skill_level" 
-            className="form-control" 
+          <select
+            name="skill_level"
+            className="form-control"
             value={formData.skill_level}
             onChange={handleChange}
           >
@@ -134,10 +147,11 @@ const CreateGame = () => {
             <option value="advanced">Advanced</option>
           </select>
         </div>
-        <button type="submit" className="btn btn-primary">Create Game</button>
+
+        <button type="submit" className="btn btn-primary">
+          Create Game      
+        </button>
       </form>
     </div>
   );
-};
-
-export default CreateGame;
+}
