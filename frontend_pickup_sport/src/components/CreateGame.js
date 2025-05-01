@@ -39,40 +39,20 @@ export default function CreateGame() {
     setFormData(fd => ({ ...fd, [name]: value }));
   };
 
-  // const handleSubmit = async e => {
-  //   e.preventDefault();
-  //   try {
-  //     // include formData.location, latitude, longitude
-  //     await API.post('games/create/', {
-  //       ...formData,
-  //       start_time: new Date(formData.start_time).toISOString(),
-  //       end_time:   new Date(formData.end_time).toISOString(),
-  //     });
-  //     navigate('/games');
-  //   } catch {
-  //     setError('Failed to create game.');
-  //   }
-  // };
   const handleSubmit = async e => {
     e.preventDefault();
     try {
-      const payload = {
+      // include formData.location, latitude, longitude
+      await API.post('games/create/', {
         ...formData,
         start_time: new Date(formData.start_time).toISOString(),
         end_time:   new Date(formData.end_time).toISOString(),
-      };
-      await API.post('games/create/', payload);
+      });
       navigate('/games');
-    } catch (err) {
-      console.error('CreateGame error payload:', err.response?.data);
-      setError(
-        err.response?.data
-          ? JSON.stringify(err.response.data)
-          : 'Failed to create game.'
-      );
+    } catch {
+      setError('Failed to create game.');
     }
   };
-  
 
   return (
     <div className="container mt-4">

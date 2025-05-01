@@ -38,7 +38,10 @@ const statusMap = {
 };
 
 export default function Games() {
-  const [games, setGames] = useState([]);
+  const [games, setGames] = useState(() => {
+    const saved = localStorage.getItem('gamesCache')
+    return saved ? JSON.parse(saved) : []
+  })
   const [filtered, setFiltered] = useState([]);
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
@@ -61,6 +64,7 @@ export default function Games() {
     try {
       const { data } = await API.get('games/');
       setGames(data);
+      localStorage.setItem('gamesCache', JSON.stringify(data))
       setError('');
     } catch {
       setError('Unable to load games.');
