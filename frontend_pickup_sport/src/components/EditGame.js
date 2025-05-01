@@ -10,33 +10,36 @@ export default function EditGame() {
   const [formData, setFormData] = useState({
     name: '',
     sport_id: '',
+    location: '',
+    latitude: null,
+    longitude: null,
     start_time: '',
     end_time: '',
     skill_level: 'all',
   });
   const [sports, setSports] = useState([]);
-  const [error, setError]   = useState('');
-  const [location, setLocation] = useState('');
-  const [latLng, setLatLng]     = useState({ lat: null, lng: null });
+  const [error, setError] = useState('');
 
   useEffect(() => {
     API.get('sports/')
-       .then(r => setSports(r.data))
-       .catch(() => setError('Failed to fetch sports.'));
+      .then(r => setSports(r.data))
+      .catch(() => setError('Failed to fetch sports.'));
+
     API.get(`games/${id}/`)
-       .then(r => {
-         const g = r.data;
-         setFormData({
-           name: g.name,
-           sport_id: g.sport.id,
-           start_time: g.start_time.slice(0,16),
-           end_time:   g.end_time.slice(0,16),
-           skill_level: g.skill_level,
-         });
-         setLocation(g.location);
-         setLatLng({ lat: g.latitude, lng: g.longitude });
-       })
-       .catch(() => setError('Failed to load game.'));
+      .then(r => {
+        const g = r.data;
+        setFormData({
+          name:         g.name,
+          sport_id:     g.sport.id,
+          location:     g.location,
+          latitude:     g.latitude,
+          longitude:    g.longitude,
+          start_time:   g.start_time.slice(0, 16), 
+          end_time:     g.end_time.slice(0, 16),
+          skill_level:  g.skill_level,
+        });
+      })
+      .catch(() => setError('Failed to load game.'));
   }, [id]);
 
   const handleChange = e => {
@@ -49,9 +52,6 @@ export default function EditGame() {
     try {
       await API.put(`games/${id}/update/`, {
         ...formData,
-        location,
-        latitude:  latLng.lat,
-        longitude: latLng.lng,
         start_time: new Date(formData.start_time).toISOString(),
         end_time:   new Date(formData.end_time).toISOString(),
       });
@@ -65,11 +65,13 @@ export default function EditGame() {
     <div className="container mt-4">
       <h2>Edit Game</h2>
       {error && <div className="alert alert-danger">{error}</div>}
+
       <form onSubmit={handleSubmit}>
         <div className="mb-3">
           <label>Game Name</label>
           <input
-            type="text" name="name"
+            type="text"
+            name="name"
             className="form-control"
             value={formData.name}
             onChange={handleChange}
@@ -92,18 +94,20 @@ export default function EditGame() {
           </select>
         </div>
         <div className="mb-3">
-            <label className="form-label">Pick a Location:</label>
-            <LocationPicker
-              location={formData.location}
-              setLocation={loc => setFormData(fd => ({ ...fd, location: loc }))}
-              setLatLng={coords=>setFormData(fd=>({...fd,latitude:coords.lat,longitude:coords.lng}))}
-            />
+          <label className="form-label">Pick a Location</label>
+          <LocationPicker
+            location={formData.location}
+            setLocation={loc => setFormData(fd => ({ ...fd, location: loc }))}
+            setLatLng={({ lat, lng }) =>
+              setFormData(fd => ({ ...fd, latitude: lat, longitude: lng }))}
+          />
         </div>
         <div className="mb-3 row">
           <div className="col">
             <label>Start Time</label>
             <input
-              type="datetime-local" name="start_time"
+              type="datetime-local"
+              name="start_time"
               className="form-control"
               value={formData.start_time}
               onChange={handleChange}
@@ -113,7 +117,8 @@ export default function EditGame() {
           <div className="col">
             <label>End Time</label>
             <input
-              type="datetime-local" name="end_time"
+              type="datetime-local"
+              name="end_time"
               className="form-control"
               value={formData.end_time}
               onChange={handleChange}
@@ -135,6 +140,7 @@ export default function EditGame() {
             <option value="advanced">Advanced</option>
           </select>
         </div>
+
         <button type="submit" className="btn btn-primary">
           Save Changes
         </button>
