@@ -46,11 +46,10 @@ export default function Games() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState('');
   const [filters, setFilters] = useState({ sport: '', location: '', time: '', name: ''});
-  const navigate = useNavigate();
-  
   const [participantQuery, setParticipantQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
   const [filterUserId, setFilterUserId] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     API.get('profile/').then(r => setUser(r.data)).catch(() => { });
@@ -96,13 +95,16 @@ export default function Games() {
     setFilterUserId(null);
     if (!q) {
       setSuggestions([]);
+      setShowSuggestions(false);
       return;
     }
     try {
       const { data } = await API.get(`/users/?search=${encodeURIComponent(q)}`);
       setSuggestions(data);
+      setShowSuggestions(true);
     } catch {
       setSuggestions([]);
+      setShowSuggestions(false);
     }
   };
 
@@ -136,36 +138,57 @@ export default function Games() {
 
   <form className="row g-3 mb-4">
   {/* Participant Search ───────────────────── */}
-  <div className="col position-relative">
+  <div className="col" style={{ position: 'relative' }}>
     <label htmlFor="participantFilter" className="form-label text-secondary">
       Player
     </label>
-    <input
-      id="participantFilter"
-      type="text"
-      className="form-control"
-      placeholder="Enter a player"
-      value={participantQuery}
-      onChange={handleParticipantChange}
-    />
-    {suggestions.length > 0 && (  //dropdown
-      <ul className="list-group position-absolute top-100 start-0 w-60 z-3"
-      style={{ zIndex: 1000}}
-      >
-        {suggestions.map(u => (
-          <li
-            key={u.id}
-            className="list-group-item list-group-item-action"
-            onClick={() => {
-              setFilterUserId(u.id);
-              setParticipantQuery(u.name);
-              setSuggestions([]);
-            }}>
-            {u.name} {'<'}{u.email}{'>'}
-          </li>
-        ))}
-      </ul>
-    )}
+    <div className="dropdown">
+          <input
+            id="participantFilter"
+            type="text"
+            className="form-control"
+            placeholder="Enter a player"
+            value={participantQuery}
+            onChange={handleParticipantChange}
+            onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
+            onBlur={() => setShowSuggestions(false)}
+            aria-expanded={showSuggestions}
+            aria-haspopup="listbox"
+            data-bs-toggle="dropdown"
+          />
+    <div
+            className={`dropdown-menu${showSuggestions ? ' show' : ''}`}
+            style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              width: 'auto',
+              minWidth: 0,
+              whiteSpace: 'nowrap',
+              zIndex: 1000
+            }}
+            aria-labelledby="participantFilter"
+          >
+          <ul className="nav flex-column">
+              {suggestions.map(u => (
+                <li key={u.id}>
+                  <button
+                    type="button"
+                    className="dropdown-item text-start"
+                    onMouseDown={e => {
+                      e.preventDefault(); //keep focus until update
+                      setFilterUserId(u.id);
+                      setParticipantQuery(u.name);
+                      setShowSuggestions(false);
+                    }}
+                  >
+                    {u.name} &lt;{u.email}&gt;
+                  </button>
+                </li>
+              ))}
+            </ul>
+  </div>
+  </div>
   </div>
 
   {/* Rest of Filters ───────────────────── */}

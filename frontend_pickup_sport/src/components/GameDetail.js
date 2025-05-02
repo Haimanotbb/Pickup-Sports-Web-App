@@ -110,6 +110,11 @@ export default function GameDetail() {
                 <dt className="col-sm-4">Sport</dt>
                 <dd className="col-sm-8">{game.sport.name}</dd>
 
+
+                    <dt className="col-sm-4">Player Limit</dt>
+                    <dd className="col-sm-8">{game.capacity ? game.capacity : 'Unlimited'}</dd>
+
+
                 <dt className="col-sm-4">Location</dt>
                 <dd className="col-sm-8">{game.location}</dd>
 

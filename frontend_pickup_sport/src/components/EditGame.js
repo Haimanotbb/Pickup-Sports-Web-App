@@ -16,6 +16,7 @@ export default function EditGame() {
     start_time: '',
     end_time: '',
     skill_level: 'all',
+    capacity: '',
   });
   const [sports, setSports] = useState([]);
   const [error, setError] = useState('');
@@ -37,6 +38,7 @@ export default function EditGame() {
           start_time:   g.start_time.slice(0, 16), 
           end_time:     g.end_time.slice(0, 16),
           skill_level:  g.skill_level,
+          capacity:     g.capacity,
         });
       })
       .catch(() => setError('Failed to load game.'));
@@ -54,6 +56,7 @@ export default function EditGame() {
         ...formData,
         start_time: new Date(formData.start_time).toISOString(),
         end_time:   new Date(formData.end_time).toISOString(),
+        capacity: formData.capacity ? parseInt(formData.capacity, 10): null,
       });
       navigate(`/games/${id}`);
     } catch {
@@ -92,6 +95,18 @@ export default function EditGame() {
               <option key={s.id} value={s.id}>{s.name}</option>
             ))}
           </select>
+        </div>
+        <div className="mb-3">
+          <label>Capacity (max players):</label>
+          <input
+            type="number"
+            name="capacity"
+            className="form-control"
+            min="1"
+            placeholder="Leave blank for unlimited"
+            value={formData.capacity ?? ''}
+            onChange={handleChange}
+          />
         </div>
         <div className="mb-3">
           <label className="form-label">Pick a Location</label>
