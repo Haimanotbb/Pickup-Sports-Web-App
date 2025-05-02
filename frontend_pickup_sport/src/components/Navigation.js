@@ -10,7 +10,7 @@ const Navigation = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   const toggleDark = () => {
-    setDarkMode((dm) => !dm);
+    setDarkMode(dm => !dm);
     document.body.classList.toggle('dark-mode', !darkMode);
   };
 
@@ -20,86 +20,67 @@ const Navigation = () => {
   };
 
   return (
-    <nav className="navbar navbar-expand-md navbar-light bg-white shadow-sm sticky-top">
+    <nav className="navbar navbar-light bg-white shadow-sm sticky-top">
       <div className="container d-flex align-items-center">
-        {/* Brand */}
-        <Link to="/games" className="navbar-brand d-flex align-items-center">
-          <span className="fw-bold fs-4 text-dark">Y</span>
-          <span className="fw-bold fs-4 text-yale">-Pickup</span>
+
+        {/* Brand on the left */}
+        <Link to="/games" className="navbar-brand fw-bold fs-4">
+          <span className="text-dark">Y</span>
+          <span className="text-yale">-Pickup</span>
         </Link>
 
-        {/* Mobile toggler */}
-        <button
-          className="navbar-toggler ms-auto"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#mainNavbar"
-          aria-controls="mainNavbar"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-        >
-          <span className="navbar-toggler-icon"></span>
-        </button>
+        {/* Right‐side group (always visible, no collapse) */}
+        <div className="ms-auto d-flex align-items-center">
 
-        {/* Collapsible right-side menu */}
-        <div className="collapse navbar-collapse" id="mainNavbar">
-          <ul className="navbar-nav align-items-center ms-auto">
-            {/* Dark Mode Toggle */}
-            <li className="nav-item mx-2">
-              <button
-                className="btn btn-link nav-link p-0"
-                onClick={toggleDark}
-                aria-label="Toggle dark mode"
-              >
-                {darkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
-              </button>
-            </li>
+          {/* Dark‐mode toggle */}
+          <button
+            className="btn btn-link nav-link p-0 mx-2"
+            onClick={toggleDark}
+            aria-label="Toggle dark mode"
+          >
+            {darkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
+          </button>
 
-            {/* Profile Dropdown */}
-            <li className="nav-item dropdown mx-2">
-              <a
-                href="#"
-                className="nav-link dropdown-toggle d-flex align-items-center"
-                id="userDropdown"
-                role="button"
-                data-bs-toggle="dropdown"
-                aria-expanded="false"
-                aria-label="User profile menu"
-              >
-                <FaUserCircle size={20} className="me-1" />
-                Profile
-              </a>
-              <ul className="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                <li>
-                  <Link to="/profile" className="dropdown-item">
-                    My Profile
-                  </Link>
-                </li>
-                <li>
-                  <hr className="dropdown-divider" />
-                </li>
-                <li>
-                  <button
-                    className="dropdown-item text-danger"
-                    onClick={handleLogout}
-                    aria-label="Log out of your account"
-                  >
-                    Log Out
-                  </button>
-                </li>
-              </ul>
-            </li>
+          {/* Profile dropdown */}
+          <div className="dropdown mx-2">
+            <button
+              className="btn btn-link nav-link d-flex align-items-center p-0 dropdown-toggle"
+              id="userDropdown"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+              aria-label="User profile menu"
+            >
+              <FaUserCircle size={20} className="me-1" />
+              Profile
+            </button>
+            <ul
+              className="dropdown-menu dropdown-menu-end"
+              aria-labelledby="userDropdown"
+            >
+              <li>
+                <Link to="/profile" className="dropdown-item">
+                  My Profile
+                </Link>
+              </li>
+              <li><hr className="dropdown-divider" /></li>
+              <li>
+                <button
+                  className="dropdown-item text-danger"
+                  onClick={handleLogout}
+                >
+                  Log Out
+                </button>
+              </li>
+            </ul>
+          </div>
 
-            {/* New Game – Pushed to the far right */}
-            <li className="nav-item ms-auto">
-              <Link
-                to="/create-game"
-                className="btn btn-primary btn-sm d-flex align-items-center"
-              >
-                <FaPlus className="me-1" /> New Game
-              </Link>
-            </li>
-          </ul>
+          {/* New Game CTA */}
+          <Link
+            to="/create-game"
+            className="btn btn-primary btn-sm d-flex align-items-center ms-3"
+          >
+            <FaPlus className="me-1" /> New Game
+          </Link>
         </div>
       </div>
     </nav>
