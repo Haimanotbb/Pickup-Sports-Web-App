@@ -47,6 +47,10 @@ export default function Games() {
   const [error, setError] = useState('');
   const [filters, setFilters] = useState({ sport: '', location: '', time: '', name: ''});
   const navigate = useNavigate();
+  
+  const [participantQuery, setParticipantQuery] = useState('');
+  const [suggestions, setSuggestions] = useState([]);
+  const [filterUserId, setFilterUserId] = useState(null);
 
   useEffect(() => {
     API.get('profile/').then(r => setUser(r.data)).catch(() => { });
@@ -58,7 +62,7 @@ export default function Games() {
   // Apply filters whenever games or filters change
   useEffect(() => {
     applyFilters(games);
-  }, [games, filters]);
+  }, [games, filters, filterUserId]);
 
   async function fetchGames() {
     try {
@@ -76,7 +80,8 @@ export default function Games() {
       (!filters.sport || g.sport.name.toLowerCase().includes(filters.sport.toLowerCase())) &&
       (!filters.location || g.location.toLowerCase().includes(filters.location.toLowerCase())) &&
       (!filters.time || formatSexy(g.start_time).toLowerCase().includes(filters.time.toLowerCase())) &&
-      (!filters.name || g.name.toLowerCase().includes(filters.name.toLowerCase()))
+      (!filters.name || g.name.toLowerCase().includes(filters.name.toLowerCase())) &&
+      (!filterUserId || g.creator.id == filterUserId || g.participants.some(p => p.user.id === filterUserId))
     );
     setFiltered(out);
   }
@@ -84,6 +89,24 @@ export default function Games() {
   const handleFilterChange = e => {
     setFilters(f => ({ ...f, [e.target.name]: e.target.value }));
   };
+
+  const handleParticipantChange = async e => {
+    const q = e.target.value;
+    setParticipantQuery(q);
+    setFilterUserId(null);
+    if (!q) {
+      setSuggestions([]);
+      return;
+    }
+    try {
+      const { data } = await API.get(`/users/?search=${encodeURIComponent(q)}`);
+      setSuggestions(data);
+    } catch {
+      setSuggestions([]);
+    }
+  };
+
+  
 
   const handleJoinLeave = async (game, join) => {
     try {
@@ -111,24 +134,59 @@ export default function Games() {
         <p className="lead text-muted">Browse upcoming sports events in your area</p>
       </header>
 
-      <form className="row g-3 mb-4">
-        {['name','sport', 'location', 'time'].map((field, i) => (
-          <div key={i} className="col-md-3">
-            <label htmlFor={`${field}Filter`} className="form-label text-secondary">
-              {field.charAt(0).toUpperCase() + field.slice(1)}
-            </label>
-            <input
-              id={`${field}Filter`}
-              name={field}
-              type="text"
-              className="form-control"
-              placeholder={'Enter ' + field}
-              value={filters[field]}
-              onChange={handleFilterChange}
-            />
-          </div>
+  <form className="row g-3 mb-4">
+  {/* Participant Search ───────────────────── */}
+  <div className="col position-relative">
+    <label htmlFor="participantFilter" className="form-label text-secondary">
+      Player
+    </label>
+    <input
+      id="participantFilter"
+      type="text"
+      className="form-control"
+      placeholder="Enter a player"
+      value={participantQuery}
+      onChange={handleParticipantChange}
+    />
+    {suggestions.length > 0 && (  //dropdown
+      <ul className="list-group position-absolute top-100 start-0 w-60 z-3"
+      style={{ zIndex: 1000}}
+      >
+        {suggestions.map(u => (
+          <li
+            key={u.id}
+            className="list-group-item list-group-item-action"
+            onClick={() => {
+              setFilterUserId(u.id);
+              setParticipantQuery(u.name);
+              setSuggestions([]);
+            }}>
+            {u.name} {'<'}{u.email}{'>'}
+          </li>
         ))}
-      </form>
+      </ul>
+    )}
+  </div>
+
+  {/* Rest of Filters ───────────────────── */}
+  {['name','sport','location','time'].map((field,i) => (
+    <div key={i} className="col">
+      <label htmlFor={`${field}Filter`} className="form-label text-secondary">
+        {field.charAt(0).toUpperCase() + field.slice(1)}
+      </label>
+      <input
+        id={`${field}Filter`}
+        name={field}
+        type="text"
+        className="form-control"
+        placeholder={'Enter ' + field}
+        value={filters[field]}
+        onChange={handleFilterChange}
+      />
+    </div>
+  ))}
+</form>
+
 
       {error && <div role="alert" className="alert alert-danger">{error}</div>}
 

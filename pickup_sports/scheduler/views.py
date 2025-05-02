@@ -1,10 +1,11 @@
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework import status, viewsets, permissions
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated, AllowAny,IsAuthenticatedOrReadOnly
-
 from rest_framework.authtoken.models import Token
+# from django.contrib.auth import get_user_model
+
 from .models import Game, Participant, Sport, Comment
 from .serializers import GameSerializer, SportSerializer, ParticipantSerializer, CustomUserProfileUpdateSerializer, UserProfileSerializer, CommentSerializer
 from django.contrib.auth import login, logout, get_user_model
@@ -17,6 +18,7 @@ from django.http import HttpResponse
 import random
 import string
 from django.utils import timezone
+from django.db.models import Q
 
 
 def make_random_password(length=8):
@@ -319,3 +321,39 @@ def game_comments(request, game_pk):
         serializer.save(author=request.user)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+User = get_user_model()
+
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def user_list(request):
+    """
+    GET /api/users/?search=<q>
+    Return users whose name, username or email contains q.
+    """
+    q = request.query_params.get('search', '').strip()
+    if not q:
+        return Response([], status=200)
+    qs = User.objects.filter(
+        Q(username__icontains=q) |
+        Q(email__icontains=q) |
+        Q(name__icontains=q)
+    )
+    serializer = UserProfileSerializer(qs, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticatedOrReadOnly])
+def user_games(request, user_id):
+    """
+    GET /api/users/<user_id>/games/
+    Return all games where user is creator or participant.
+    """
+    games = Game.objects.filter(
+        Q(creator__id=user_id) |
+        Q(participants__user__id=user_id)
+    ).distinct()
+    serializer = GameSerializer(games, many=True)
+    return Response(serializer.data)

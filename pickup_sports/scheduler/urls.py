@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views import user_list, user_games
 
 urlpatterns = [
     path('profile/', views.profile_detail, name='profile_detail'),
@@ -18,4 +19,6 @@ urlpatterns = [
     path(
       'games/<int:game_pk>/comments/', views.game_comments,name='game-comments'
     ),
+    path('users/', user_list, name='user-list'),
+    path('users/<int:user_id>/games/', user_games, name='user-games'),
 ]
