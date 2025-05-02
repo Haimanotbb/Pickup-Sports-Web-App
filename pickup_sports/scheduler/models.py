@@ -37,6 +37,17 @@ class Game(models.Model):
         ('advanced', 'Advanced'),
         ('all', 'All Levels'),
     ]
+
+    capacity = models.PositiveIntegerField(
+      null=True,      #"no limit”
+      blank=True,     #lets form leave it empty
+      help_text="Maximum number of participants; leave blank for unlimited"
+    )
+    @property
+    def is_full(self):
+        if self.capacity is None:
+            return False
+        return self.participants.count() >= self.capacity
     
     name = models.CharField(max_length=200, blank=True)
     creator = models.ForeignKey(

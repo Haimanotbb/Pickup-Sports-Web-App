@@ -75,9 +75,14 @@ class GameSerializer(serializers.ModelSerializer):
     )
     current_state = serializers.SerializerMethodField()
     comments = CommentSerializer(many=True, read_only=True)
+    capacity = serializers.IntegerField(
+      min_value=1, allow_null=True, required=False,
+      error_messages={'min_value': 'Capacity must be at least 1.'}
+    )
 
     class Meta:
         model = Game
+
         fields = [
             'id',
             'name',             
@@ -91,7 +96,8 @@ class GameSerializer(serializers.ModelSerializer):
             'sport',
             'sport_id',
             'current_state',  
-            'comments'
+            'comments',
+            'capacity',
         ]
         read_only_fields = ['id', 'creator', 'participants', 'sport', 'current_state','comments']
 

@@ -196,6 +196,7 @@ export default function Games() {
           const info = statusMap[stateKey] || { text: game.current_state, class: 'bg-secondary', icon: null };
           const isCreator = game.creator.id === user?.id;
           const joined = game.participants.some(p => p.user.id === user?.id);
+          const full = game.capacity && game.participants.length >= game.capacity;
           const iconSrc = SPORT_ICONS[game.sport.name] || SPORT_ICONS.DEFAULT;
 
           return (
@@ -249,7 +250,15 @@ export default function Games() {
                       </Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
-                ) : joined ? (
+                ) : full ? (
+                  <button
+                    className="btn btn-secondary"
+                    disabled
+                    title="Game at capacity"
+                  >Full
+                  </button>
+                ) 
+                : joined ? (
                   <button
                     className="btn btn-outline-danger"
                     onClick={() => handleJoinLeave(game, false)}

@@ -273,7 +273,12 @@ def join_game(request, pk):
 
     if game.participant_set.filter(user=request.user).exists():
         return Response({"error": "You have already joined this game"}, status=status.HTTP_400_BAD_REQUEST)
-
+    if game.capacity and game.participants.count() >= game.capacity:
+        return Response(
+        {"error": "Game at capacity."},
+        status=status.HTTP_400_BAD_REQUEST
+        )
+    
     Participant.objects.create(user=request.user, game=game)
     return Response({"message": "Successfully joined the game"}, status=status.HTTP_200_OK)
 
