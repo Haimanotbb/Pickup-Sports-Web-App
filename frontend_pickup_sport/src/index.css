@@ -138,6 +138,8 @@ code {
   text-decoration: none !important;
 }
 
+
+
 /* =========================================================================== */
 /* CIRCULAR STYLING                                                            */
 /* =========================================================================== */
@@ -221,4 +223,13 @@ body.dark-mode .badge {
 
 body.dark-mode .accordion-button::after {
   filter: brightness(0) invert(1);
+}
+
+.participant-col {
+  position: relative;
+  z-index: 2000 !important;
+}
+
+.participant-col .dropdown-menu {
+  z-index: 2000 !important;
 }

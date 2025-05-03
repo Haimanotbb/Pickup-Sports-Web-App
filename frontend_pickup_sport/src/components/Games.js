@@ -1,3 +1,4 @@
+// src/components/Games.jsx
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -23,8 +24,7 @@ const getOrdinal = n => {
 
 const formatSexy = iso => {
   const dt = DateTime.fromISO(iso).setLocale("en");
-  const day = dt.day;
-  const suffix = getOrdinal(day);
+  const suffix = getOrdinal(dt.day);
   return `${dt.toFormat("EEEE, LLLL d")}${suffix} at ${dt.toFormat("h:mm a")}`;
 };
 
@@ -64,11 +64,12 @@ export default function Games() {
   const [suggestions, setSuggestions] = useState([]);
   const [filterUserId, setFilterUserId] = useState(null);
   const [showSuggestions, setShowSuggestions] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     API.get('profile/')
       .then(r => setUser(r.data))
-      .catch(() => { });
+      .catch(() => {});
     fetchGames();
     const tid = setInterval(fetchGames, INTERVAL);
     return () => clearInterval(tid);
@@ -92,26 +93,23 @@ export default function Games() {
   function applyFilters(list) {
     const out = list.filter(g => {
       if (filters.name &&
-        !g.name.toLowerCase().includes(filters.name.toLowerCase())
+          !g.name.toLowerCase().includes(filters.name.toLowerCase())
       ) return false;
       if (filters.sport &&
-        !g.sport.name.toLowerCase().includes(filters.sport.toLowerCase())
+          !g.sport.name.toLowerCase().includes(filters.sport.toLowerCase())
       ) return false;
       if (filters.location &&
-        !g.location.toLowerCase().includes(filters.location.toLowerCase())
+          !g.location.toLowerCase().includes(filters.location.toLowerCase())
       ) return false;
-
       if (filters.time) {
         const gameDate = DateTime.fromISO(g.start_time).toISODate();
         if (gameDate !== filters.time) return false;
       }
-
       if (filterUserId) {
         const isCreator = g.creator.id === filterUserId;
         const isParticipant = g.participants.some(p => p.user.id === filterUserId);
         if (!isCreator && !isParticipant) return false;
       }
-
       return true;
     });
     setFiltered(out);
@@ -155,12 +153,13 @@ export default function Games() {
   return (
     <main className="container mt-5">
       <header className="mb-4">
-        <h1 className="display-6 text-yale">Find & Join a Game</h1>
+        <h1 className="display-6 text-yale">Find &amp; Join a Game</h1>
         <p className="lead text-muted">Browse upcoming sports events</p>
       </header>
 
       <form className="row g-3 mb-4">
-        <div className="col" style={{ position: 'relative' }}>
+        {/* Participant Search */}
+        <div className="col participant-col">
           <label htmlFor="participantFilter" className="form-label text-secondary">
             Player
           </label>
@@ -177,13 +176,12 @@ export default function Games() {
             aria-haspopup="listbox"
           />
           <ul
-            className={`dropdown-menu${showSuggestions ? ' show' : ''} dropdown-circular`}
+            className={`dropdown-menu${showSuggestions ? ' show' : ''}`}
             style={{
               position: 'absolute',
               top: '100%',
               left: 0,
               right: 0,
-              zIndex: 1000,
               maxHeight: '200px',
               overflowY: 'auto'
             }}
@@ -200,11 +198,14 @@ export default function Games() {
                     setShowSuggestions(false);
                   }}
                 >
+                  {u.name} &lt;{u.email}&gt;
                 </button>
               </li>
             ))}
           </ul>
         </div>
+
+        {/* Other Filters */}
         {['name', 'sport', 'location'].map((field, i) => (
           <div key={i} className="col">
             <label htmlFor={`${field}Filter`} className="form-label text-secondary">
@@ -221,6 +222,7 @@ export default function Games() {
             />
           </div>
         ))}
+
         <div className="col">
           <label htmlFor="timeFilter" className="form-label text-secondary">
             Date
@@ -256,6 +258,7 @@ export default function Games() {
                   className="card-img-top game-cover"
                 />
               )}
+
               <Link to={`/games/${game.id}`} className="text-decoration-none text-reset no-hover-underline">
                 <div className="card-body d-flex align-items-center">
                   <div className="flex-grow-1">
@@ -278,14 +281,11 @@ export default function Games() {
                   />
                 </div>
               </Link>
+
               <div className="card-footer d-flex justify-content-end">
                 {isCreator ? (
                   <Dropdown align="end">
-                    <Dropdown.Toggle
-                      variant="outline-secondary"
-                      size="sm"
-                      className="btn-circular"
-                    >
+                    <Dropdown.Toggle variant="outline-secondary" size="sm" className="btn-circular">
                       ⋮
                     </Dropdown.Toggle>
                     <Dropdown.Menu>
