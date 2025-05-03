@@ -7,10 +7,22 @@ import {
   Form,
   Row,
   Col,
+  InputGroup,
   Button,
   Alert,
   Spinner,
 } from 'react-bootstrap';
+import {
+  FaEdit,
+  FaFutbol,
+  FaUsers,
+  FaMapMarkerAlt,
+  FaChartLine,
+  FaCalendarAlt,
+  FaClock,
+  FaSave,
+  FaTimes,
+} from 'react-icons/fa';
 import API from '../api/api';
 import LocationPicker from './LocationPicker';
 import 'bootstrap/dist/css/bootstrap.min.css';
@@ -19,6 +31,7 @@ export default function EditGame() {
   const { id } = useParams();
   const navigate = useNavigate();
 
+  // initial form state
   const [formData, setFormData] = useState({
     name: '',
     sport_id: '',
@@ -34,19 +47,22 @@ export default function EditGame() {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [dateError, setDateError] = useState('');
 
-  // Load sports list + existing game data
+  // compute min datetime-local in user's local timezone
+  const toLocalInput = dt => {
+    const offset = dt.getTimezoneOffset() * 60000;
+    return new Date(dt - offset).toISOString().slice(0, 16);
+  };
+  const [minStart] = useState(toLocalInput(new Date()));
+
+  // load sports and current game data
   useEffect(() => {
     let mounted = true;
-
-    Promise.all([
-      API.get('sports/'),
-      API.get(`games/${id}/`),
-    ])
+    Promise.all([API.get('sports/'), API.get(`games/${id}/`)])
       .then(([{ data: sportsData }, { data: game }]) => {
         if (!mounted) return;
         setSports(sportsData);
-
         setFormData({
           name: game.name,
           sport_id: game.sport.id,
@@ -59,19 +75,16 @@ export default function EditGame() {
           skill_level: game.skill_level,
         });
       })
-      .catch(() => {
-        if (mounted) setError('Failed to load sports or game.');
-      })
+      .catch(() => mounted && setError('Failed to load data.'))
       .finally(() => mounted && setLoading(false));
-
-    return () => {
-      mounted = false;
-    };
+    return () => { mounted = false; };
   }, [id]);
 
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(fd => ({ ...fd, [name]: value }));
+    if (name === 'start_time') setDateError('');
+    if (error) setError('');
   };
 
   const handleLocation = loc => {
@@ -83,9 +96,18 @@ export default function EditGame() {
 
   const handleSubmit = async e => {
     e.preventDefault();
-    setSubmitting(true);
     setError('');
+    setDateError('');
 
+    // ensure start is in the future
+    const now = new Date();
+    const start = new Date(formData.start_time);
+    if (start <= now) {
+      setDateError('Start time must be in the future.');
+      return;
+    }
+
+    setSubmitting(true);
     try {
       await API.put(`games/${id}/update/`, {
         ...formData,
@@ -95,7 +117,7 @@ export default function EditGame() {
       });
       navigate(`/games/${id}`);
     } catch {
-      setError('Failed to save changes. Check your inputs.');
+      setError('Failed to save changes. Please check your inputs.');
     } finally {
       setSubmitting(false);
     }
@@ -110,137 +132,159 @@ export default function EditGame() {
   }
 
   return (
-    <Container className="py-4">
-      <Button variant="link" onClick={() => navigate(-1)}>
-        ← Back
-      </Button>
-
-      <Card className="shadow-sm mt-3">
-        <Card.Header>
-          <h3 className="mb-0">Edit Game</h3>
+    <Container className="my-4 d-flex justify-content-center">
+      <Card className="shadow-sm w-100" style={{ maxWidth: 800 }}>
+        <Card.Header className="d-flex align-items-center">
+          <FaEdit className="me-2" />
+          <h4 className="mb-0">Edit Game</h4>
         </Card.Header>
-
         <Card.Body>
           {error && <Alert variant="danger">{error}</Alert>}
+          {dateError && <Alert variant="warning">{dateError}</Alert>}
 
           <Form onSubmit={handleSubmit}>
             <Row className="g-3">
+              {/* Game Name */}
               <Col md={6}>
-                <Form.Group controlId="gameName">
-                  <Form.Label>Game Name</Form.Label>
-                  <Form.Control
-                    type="text"
-                    name="name"
-                    value={formData.name}
-                    onChange={handleChange}
-                    required
-                  />
+                <Form.Group controlId="name">
+                  <Form.Label>Name</Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text><FaEdit /></InputGroup.Text>
+                    <Form.Control
+                      type="text"
+                      name="name"
+                      placeholder="Game title"
+                      value={formData.name}
+                      onChange={handleChange}
+                      required
+                    />
+                  </InputGroup>
                 </Form.Group>
               </Col>
 
+              {/* Sport */}
               <Col md={6}>
-                <Form.Group controlId="sportSelect">
+                <Form.Group controlId="sport_id">
                   <Form.Label>Sport</Form.Label>
-                  <Form.Select
-                    name="sport_id"
-                    value={formData.sport_id}
-                    onChange={handleChange}
-                    required
-                  >
-                    <option value="">Select…</option>
-                    {sports.map(s => (
-                      <option key={s.id} value={s.id}>
-                        {s.name}
-                      </option>
-                    ))}
-                  </Form.Select>
+                  <InputGroup>
+                    <InputGroup.Text><FaFutbol /></InputGroup.Text>
+                    <Form.Select
+                      name="sport_id"
+                      value={formData.sport_id}
+                      onChange={handleChange}
+                      required
+                    >
+                      <option value="">Select a sport</option>
+                      {sports.map(s => (
+                        <option key={s.id} value={s.id}>{s.name}</option>
+                      ))}
+                    </Form.Select>
+                  </InputGroup>
                 </Form.Group>
               </Col>
 
+              {/* Capacity */}
               <Col md={6}>
                 <Form.Group controlId="capacity">
-                  <Form.Label>Capacity (max players)</Form.Label>
-                  <Form.Control
-                    type="number"
-                    name="capacity"
-                    placeholder="Leave blank for unlimited"
-                    value={formData.capacity}
-                    onChange={handleChange}
-                    min="1"
-                  />
+                  <Form.Label>Capacity</Form.Label>
+                  <InputGroup>
+                    <InputGroup.Text><FaUsers /></InputGroup.Text>
+                    <Form.Control
+                      type="number"
+                      name="capacity"
+                      placeholder="Max players (blank = unlimited)"
+                      value={formData.capacity}
+                      onChange={handleChange}
+                      min="1"
+                    />
+                  </InputGroup>
                 </Form.Group>
               </Col>
 
+              {/* Skill Level */}
               <Col md={6}>
-                <Form.Group controlId="skillLevel">
+                <Form.Group controlId="skill_level">
                   <Form.Label>Skill Level</Form.Label>
-                  <Form.Select
-                    name="skill_level"
-                    value={formData.skill_level}
-                    onChange={handleChange}
-                  >
-                    <option value="all">All Levels</option>
-                    <option value="beginner">Beginner</option>
-                    <option value="intermediate">Intermediate</option>
-                    <option value="advanced">Advanced</option>
-                  </Form.Select>
+                  <InputGroup>
+                    <InputGroup.Text><FaChartLine /></InputGroup.Text>
+                    <Form.Select
+                      name="skill_level"
+                      value={formData.skill_level}
+                      onChange={handleChange}
+                    >
+                      <option value="all">All Levels</option>
+                      <option value="beginner">Beginner</option>
+                      <option value="intermediate">Intermediate</option>
+                      <option value="advanced">Advanced</option>
+                    </Form.Select>
+                  </InputGroup>
                 </Form.Group>
               </Col>
 
+              {/* Location */}
               <Col xs={12}>
                 <Form.Label>Location</Form.Label>
-                <LocationPicker
-                  location={formData.location}
-                  setLocation={handleLocation}
-                  setLatLng={handleCoords}
-                />
+                <InputGroup>
+                  <InputGroup.Text><FaMapMarkerAlt /></InputGroup.Text>
+                  <LocationPicker
+                    location={formData.location}
+                    setLocation={handleLocation}
+                    setLatLng={handleCoords}
+                  />
+                </InputGroup>
               </Col>
 
+              {/* Start Time */}
               <Col md={6}>
-                <Form.Group controlId="startTime">
+                <Form.Group controlId="start_time">
                   <Form.Label>Start Time</Form.Label>
-                  <Form.Control
-                    type="datetime-local"
-                    name="start_time"
-                    value={formData.start_time}
-                    onChange={handleChange}
-                    required
-                  />
+                  <InputGroup>
+                    <InputGroup.Text><FaCalendarAlt /></InputGroup.Text>
+                    <Form.Control
+                      type="datetime-local"
+                      name="start_time"
+                      value={formData.start_time}
+                      onChange={handleChange}
+                      required
+                      min={minStart}
+                    />
+                  </InputGroup>
                 </Form.Group>
               </Col>
 
+              {/* End Time */}
               <Col md={6}>
-                <Form.Group controlId="endTime">
+                <Form.Group controlId="end_time">
                   <Form.Label>End Time</Form.Label>
-                  <Form.Control
-                    type="datetime-local"
-                    name="end_time"
-                    value={formData.end_time}
-                    onChange={handleChange}
-                    required
-                  />
+                  <InputGroup>
+                    <InputGroup.Text><FaClock /></InputGroup.Text>
+                    <Form.Control
+                      type="datetime-local"
+                      name="end_time"
+                      value={formData.end_time}
+                      onChange={handleChange}
+                      required
+                      min={formData.start_time || minStart}
+                    />
+                  </InputGroup>
                 </Form.Group>
               </Col>
             </Row>
 
             <div className="mt-4 d-flex justify-content-end">
               <Button
-                variant="secondary"
+                variant="outline-secondary"
                 className="me-2"
                 disabled={submitting}
                 onClick={() => navigate(`/games/${id}`)}
               >
-                Cancel
+                <FaTimes className="me-1" /> Cancel
               </Button>
               <Button type="submit" variant="primary" disabled={submitting}>
-                {submitting ? (
-                  <>
-                    <Spinner animation="border" size="sm" className="me-2" />
-                    Saving…
-                  </>
-                ) : (
-                  'Save Changes'
-                )}
+                {submitting
+                  ? (<><Spinner animation="border" size="sm" className="me-2" /> Saving…</>)
+                  : (<><FaSave className="me-1" /> Save Changes</>)
+                }
               </Button>
             </div>
           </Form>

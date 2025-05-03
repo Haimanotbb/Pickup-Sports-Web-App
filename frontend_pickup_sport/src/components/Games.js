@@ -200,7 +200,6 @@ export default function Games() {
                     setShowSuggestions(false);
                   }}
                 >
-                  {u.name} &lt;{u.email}&gt;
                 </button>
               </li>
             ))}
@@ -237,6 +236,8 @@ export default function Games() {
         </div>
       </form>
 
+      {error && <div role="alert" className="alert alert-danger alert-circular">{error}</div>}
+
       <div className="games-grid">
         {filtered.map(game => {
           const stateKey = game.current_state.toLowerCase();
@@ -255,7 +256,7 @@ export default function Games() {
                   className="card-img-top game-cover"
                 />
               )}
-              <Link to={`/games/${game.id}`} className="text-decoration-none text-reset">
+              <Link to={`/games/${game.id}`} className="text-decoration-none text-reset no-hover-underline">
                 <div className="card-body d-flex align-items-center">
                   <div className="flex-grow-1">
                     <h5 className="card-title text-yale">{game.name}</h5>

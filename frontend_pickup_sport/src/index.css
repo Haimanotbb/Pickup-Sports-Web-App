@@ -119,14 +119,28 @@ code {
   overflow: hidden;
 }
 
-/* =========================================================================== */
-/* CIRCULAR STYLING                                                            */
-/* =========================================================================== */
 .card-circular {
   border-radius: 1.5rem !important;
   overflow: hidden;
+  transition: background-color 0.3s ease;
 }
 
+.card-circular:hover {
+  background-color: #E6ECF4 !important;
+}
+
+.no-hover-underline:hover {
+  text-decoration: none !important;
+}
+
+.no-hover-underline:hover .card-title,
+.no-hover-underline:hover .card-text {
+  text-decoration: none !important;
+}
+
+/* =========================================================================== */
+/* CIRCULAR STYLING                                                            */
+/* =========================================================================== */
 .input-circular {
   border-radius: 1.25rem !important;
 }
@@ -171,6 +185,10 @@ body.dark-mode .card.shadow {
   background-color: #2e2e2e !important;
   border-color: #444 !important;
   color: #e0e0e0 !important;
+}
+
+body.dark-mode .card-circular:hover {
+  background-color: #4a4a4a !important;
 }
 
 body.dark-mode .accordion,
