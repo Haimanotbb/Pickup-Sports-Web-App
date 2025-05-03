@@ -19,6 +19,16 @@ code {
   --yale-blue: #0F4D92;
 }
 
+.text-yale {
+  color: var(--yale-blue) !important;
+}
+
+.text-yale:hover,
+.text-yale:focus {
+  color: #003087 !important;
+  /* a slightly darker Yale hover state */
+}
+
 /* =========================================================================== */
 /* LOGIN PAGE & WATERMARK                                                      */
 /* =========================================================================== */
@@ -137,4 +147,69 @@ body.dark-mode {
   .navbar .form-control-sm {
     margin-right: 0.5rem;
   }
+}
+
+/* =========================================================================== */
+/* Dark Mode Stuff                                                      */
+/* =========================================================================== */
+
+/* make “.text-muted” really light in dark-mode */
+body.dark-mode .text-muted {
+  color: rgba(255, 255, 255, 0.7) !important;
+}
+
+/* if you want that lead paragraph ever so slightly brighter: */
+body.dark-mode p.lead.text-muted {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+body.dark-mode .card,
+body.dark-mode .card.shadow {
+  background-color: #2e2e2e !important;
+  /* a mid-gray */
+  border-color: #444 !important;
+  color: #e0e0e0 !important;
+}
+
+/* Dark-mode overrides for Profile past-games accordion */
+body.dark-mode {
+  /* make sure your container text is light */
+  color: #e0e0e0;
+}
+
+body.dark-mode .accordion,
+body.dark-mode .accordion .accordion-item,
+body.dark-mode .accordion-button,
+body.dark-mode .accordion-body {
+  background-color: #1f1f1f !important;
+  border-color: #333 !important;
+  color: #e0e0e0 !important;
+}
+
+/* When collapsed */
+body.dark-mode .accordion-button {
+  background-color: #2a2a2a !important;
+  color: #e0e0e0 !important;
+}
+
+/* Past games list items */
+body.dark-mode .list-group-item {
+  background-color: #2a2a2a !important;
+  border-color: #444 !important;
+  color: #e0e0e0 !important;
+}
+
+/* Make sure muted text (e.g. timestamps) shows up */
+body.dark-mode .text-muted {
+  color: #999 !important;
+}
+
+/* Keep badges readable */
+body.dark-mode .badge {
+  opacity: 0.85;
+}
+
+/* If you want the Accordion header arrow also white */
+body.dark-mode .accordion-button::after {
+  filter: brightness(0) invert(1);
 }

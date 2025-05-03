@@ -10,8 +10,10 @@ const Navigation = () => {
   const [darkMode, setDarkMode] = useState(false);
 
   const toggleDark = () => {
-    setDarkMode(dm => !dm);
-    document.body.classList.toggle('dark-mode', !darkMode);
+    setDarkMode(dm => {
+      document.body.classList.toggle('dark-mode', !dm);
+      return !dm;
+    });
   };
 
   const handleLogout = () => {
@@ -34,9 +36,10 @@ const Navigation = () => {
 
           {/* Dark‐mode toggle */}
           <button
-            className="btn btn-link nav-link p-0 mx-2"
+            className="btn btn-link nav-link p-0 me-2 dark-toggle text-yale"
             onClick={toggleDark}
             aria-label="Toggle dark mode"
+            style={{ position: 'relative', top: '-2px' }}
           >
             {darkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
           </button>
@@ -44,7 +47,7 @@ const Navigation = () => {
           {/* Profile dropdown */}
           <div className="dropdown mx-2">
             <button
-              className="btn btn-link nav-link d-flex align-items-center p-0 dropdown-toggle"
+              className="btn btn-link nav-link d-flex align-items-center p-0 dropdown-toggle text-yale"
               id="userDropdown"
               data-bs-toggle="dropdown"
               aria-expanded="false"
@@ -83,7 +86,7 @@ const Navigation = () => {
           </Link>
         </div>
       </div>
-    </nav>
+    </nav >
   );
 };
 

@@ -1,74 +1,117 @@
-import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; import API from '../api/api';
+// src/components/Profile.jsx
+import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import {
+  Container,
+  Card,
+  Alert,
+  Spinner,
+  Badge,
+  ListGroup,
+  Button,
+  Accordion,
+} from 'react-bootstrap';
+import API from '../api/api';
+import 'bootstrap/dist/css/bootstrap.min.css';
+import '../index.css';
 
-const Profile = () => {
+export default function Profile() {
   const [profile, setProfile] = useState(null);
   const [archived, setArchived] = useState([]);
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
-    // 1) fetch your own profile
-    API.get('profile/')
-      .then(res => setProfile(res.data))
-      .catch(() => setError('Failed to load profile.'));
+    let mounted = true;
 
-    // 2) fetch your archived games
+    API.get('profile/')
+      .then(({ data }) => mounted && (setProfile(data), setError('')))
+      .catch(() => mounted && setError('Failed to load profile.'));
+
     API.get('my-archived-games/')
-      .then(res => setArchived(res.data))
-      .catch(() => setError('Failed to load archived games.'));
+      .then(({ data }) => mounted && (setArchived(data), setError('')))
+      .catch(() => mounted && setError('Failed to load past games.'));
+
+    return () => { mounted = false };
   }, []);
 
   if (error) {
     return (
-      <div className="container mt-4">
-        <div className="alert alert-danger">{error}</div>
-      </div>
+      <Container className="mt-4">
+        <Alert variant="danger">{error}</Alert>
+      </Container>
     );
   }
+
   if (!profile) {
-    return <div className="container mt-4">Loading...</div>;
+    return (
+      <Container className="text-center py-5">
+        <Spinner animation="border" role="status" />
+      </Container>
+    );
   }
 
   return (
-    <div className="container mt-4">
-      <div className="d-flex justify-content-between align-items-center">
-        <h2>My Profile</h2>
-        <button
-          className="btn btn-outline-primary"
-          onClick={() => navigate('/profile/setup')}
-        >
-          Edit Profile
-        </button>
-      </div>
-      <p><strong>Name:</strong> {profile.name}</p>
-      <p><strong>Email:</strong> {profile.email}</p>
-      <p><strong>Bio:</strong> {profile.bio || 'No bio provided.'}</p>
-      <p>
-        <strong>Favorite Sports:</strong>{' '}
-        {profile.favorite_sports.length
-          ? profile.favorite_sports.map(s => s.name).join(', ')
-          : 'None'}
-      </p>
+    <Container className="mt-4">
+      {/* Profile Card */}
+      <Card className="shadow-sm">
+        <Card.Header className="d-flex justify-content-between align-items-center">
+          <h2 className="h5 mb-0">My Profile</h2>
+          <Button
+            variant="outline-primary"
+            size="sm"
+            onClick={() => navigate('/profile/setup')}
+          >
+            Edit Profile
+          </Button>
+        </Card.Header>
+        <Card.Body>
+          <p><strong>Name:</strong> {profile.name}</p>
+          <p><strong>Email:</strong> {profile.email}</p>
+          <p>
+            <strong>Bio:</strong>{' '}
+            {profile.bio || <em className="text-muted">No bio provided.</em>}
+          </p>
+          <hr />
+          <h5 className="mb-2">Favorite Sports</h5>
+          {profile.favorite_sports.length > 0 ? (
+            profile.favorite_sports.map(s => (
+              <Badge key={s.id} bg="primary" className="me-2 mb-2">{s.name}</Badge>
+            ))
+          ) : (
+            <p className="text-muted mb-0">None</p>
+          )}
+        </Card.Body>
+      </Card>
 
-      <hr />
-
-      <h3>My Past Games</h3>
-      {archived.length > 0 ? (
-        <ul className="list-group">
-          {archived.map(game => (
-            <li key={game.id} className="list-group-item">
-              {game.name || game.sport.name} —{' '}
-              {new Date(game.start_time).toLocaleString()} →{' '}
-              <em>{game.current_state}</em>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        <p>You haven’t created any past games yet.</p>
-      )}
-    </div>
+      {/* Accordion for Past Games */}
+      <Accordion defaultActiveKey="0" className="mt-4 shadow-sm">
+        <Accordion.Item eventKey="0">
+          <Accordion.Header>My Past Games ({archived.length})</Accordion.Header>
+          <Accordion.Body>
+            {archived.length > 0 ? (
+              <ListGroup variant="flush">
+                {archived.map(game => (
+                  <ListGroup.Item
+                    key={game.id}
+                    className="d-flex justify-content-between align-items-center"
+                  >
+                    <div>
+                      <strong>{game.name || game.sport.name}</strong>
+                      <div className="text-muted small">
+                        {new Date(game.start_time).toLocaleString()}
+                      </div>
+                    </div>
+                    <em>{game.current_state}</em>
+                  </ListGroup.Item>
+                ))}
+              </ListGroup>
+            ) : (
+              <p className="text-muted mb-0">You haven’t created any past games yet.</p>
+            )}
+          </Accordion.Body>
+        </Accordion.Item>
+      </Accordion>
+    </Container>
   );
-};
-
-export default Profile;
+}
