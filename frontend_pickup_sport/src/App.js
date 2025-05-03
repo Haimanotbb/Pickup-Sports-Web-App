@@ -1,4 +1,4 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, Outlet } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import Navigation from './components/Navigation';
 import Login from './components/Login';
@@ -12,6 +12,11 @@ import ProfileSetup from './components/ProfileSetup';
 import MyGames from './components/MyGames';
 import EditGame from './components/EditGame';
 
+function ProtectedRoute() {
+  const token = localStorage.getItem('token');
+  return token ? <Outlet /> : <Navigate to="/login" replace />;
+}
+
 function AppContent() {
   const location = useLocation();
   const [isLoggedIn, setIsLoggedIn] = useState(!!localStorage.getItem('token'));
@@ -24,7 +29,7 @@ function AppContent() {
       window.history.replaceState({}, document.title, location.pathname);
     }
   }, [location.search, location.pathname]);
-  const hideNavRoutes = ['/login', '/signup', '/'];
+  const hideNavRoutes = ['/login', '/signup', '/', '/profile/setup'];
   const showNavigation = isLoggedIn && !hideNavRoutes.includes(location.pathname);
 
   return (
@@ -34,14 +39,19 @@ function AppContent() {
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
-        <Route path="/games" element={<Games />} />
-        <Route path="/games/:id" element={<GameDetail />} />
-        <Route path="/create-game" element={<CreateGame />} />
-        <Route path="/my-games" element={<MyGames />} />
-        <Route path="/profile" element={<Profile />} />
+
+        <Route element={<ProtectedRoute />}>
+          <Route path="/games" element={<Games />} />
+          <Route path="/games/:id" element={<GameDetail />} />
+          <Route path="/create-game" element={<CreateGame />} />
+          <Route path="/my-games" element={<MyGames />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/games/:id/edit" element={<EditGame />} />
+        </Route>
         <Route path="/profile/:id" element={<PublicProfile />} />
         <Route path="/profile/setup" element={<ProfileSetup />} />
-        <Route path="/games/:id/edit" element={<EditGame />} />
+
+        <Route path="*" element={<Navigate to="/login" replace />} />
       </Routes>
     </>
   );
