@@ -17,10 +17,19 @@ import '../index.css';
 
 const INTERVAL = 7000;
 
-const formatSexy = iso =>
-  DateTime.fromISO(iso)
-    .setLocale('en')
-    .toFormat("EEEE, LLLL d'th' 'at' h:mm a");
+const getOrdinal = n => {
+  const s = ["th","st","nd","rd"];
+  const v = n % 100;
+  return s[(v > 10 && v < 14) ? 0 : (n % 10)] || "th";
+};
+
+const formatSexy = iso => {
+  const dt = DateTime.fromISO(iso).setLocale("en");
+  const day = dt.day;
+  const suffix = getOrdinal(day);
+  //use toFormat for parts, then concatenate
+  return `${dt.toFormat("EEEE, LLLL d")}${suffix} at ${dt.toFormat("h:mm a")}`;
+};
 
 const statusMap = {
   open: {
