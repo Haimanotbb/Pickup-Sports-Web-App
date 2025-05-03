@@ -162,7 +162,7 @@ export default function Games() {
     <main className="container mt-5">
       <header className="mb-4">
         <h1 className="display-6">Find & Join a Game</h1>
-        <p className="lead text-muted">Browse upcoming sports events in your area</p>
+        <p className="lead text-muted">Browse upcoming sports events</p>
       </header>
 
       {/* Filters Form */}
