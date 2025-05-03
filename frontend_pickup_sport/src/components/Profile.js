@@ -17,24 +17,41 @@ import '../index.css';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
-  const [archived, setArchived] = useState([]);
+  const [archived, setArchived] = useState(null); // null = loading, [] = loaded no games
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
     let mounted = true;
 
+    // Fetch profile
     API.get('profile/')
-      .then(({ data }) => mounted && (setProfile(data), setError('')))
-      .catch(() => mounted && setError('Failed to load profile.'));
+      .then(({ data }) => {
+        if (!mounted) return;
+        setProfile(data);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setError('Failed to load profile.');
+      });
 
+    // Fetch archived games
     API.get('my-archived-games/')
-      .then(({ data }) => mounted && (setArchived(data), setError('')))
-      .catch(() => mounted && setError('Failed to load past games.'));
+      .then(({ data }) => {
+        if (!mounted) return;
+        setArchived(data);
+      })
+      .catch(() => {
+        if (!mounted) return;
+        setError('Failed to load past games.');
+      });
 
-    return () => { mounted = false };
+    return () => {
+      mounted = false;
+    };
   }, []);
 
+  // Global error state
   if (error) {
     return (
       <Container className="mt-4">
@@ -43,6 +60,7 @@ export default function Profile() {
     );
   }
 
+  // While profile is loading…
   if (!profile) {
     return (
       <Container className="text-center py-5">
@@ -76,7 +94,9 @@ export default function Profile() {
           <h5 className="mb-2">Favorite Sports</h5>
           {profile.favorite_sports.length > 0 ? (
             profile.favorite_sports.map(s => (
-              <Badge key={s.id} bg="primary" className="me-2 mb-2">{s.name}</Badge>
+              <Badge key={s.id} bg="primary" className="me-2 mb-2">
+                {s.name}
+              </Badge>
             ))
           ) : (
             <p className="text-muted mb-0">None</p>
@@ -87,9 +107,16 @@ export default function Profile() {
       {/* Accordion for Past Games */}
       <Accordion defaultActiveKey="0" className="mt-4 shadow-sm">
         <Accordion.Item eventKey="0">
-          <Accordion.Header>My Past Games ({archived.length})</Accordion.Header>
+          <Accordion.Header>
+            My Past Games ({archived?.length ?? '…'})
+          </Accordion.Header>
           <Accordion.Body>
-            {archived.length > 0 ? (
+            {archived === null ? (
+              // still loading archived games
+              <div className="text-center py-3">
+                <Spinner animation="border" size="sm" role="status" />
+              </div>
+            ) : archived.length > 0 ? (
               <ListGroup variant="flush">
                 {archived.map(game => (
                   <ListGroup.Item
@@ -107,7 +134,9 @@ export default function Profile() {
                 ))}
               </ListGroup>
             ) : (
-              <p className="text-muted mb-0">You haven’t created any past games yet.</p>
+              <p className="text-muted mb-0">
+                You haven’t created any past games yet.
+              </p>
             )}
           </Accordion.Body>
         </Accordion.Item>

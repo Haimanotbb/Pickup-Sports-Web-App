@@ -18,7 +18,7 @@ import '../index.css';
 const INTERVAL = 7000;
 
 const getOrdinal = n => {
-  const s = ["th","st","nd","rd"];
+  const s = ["th", "st", "nd", "rd"];
   const v = n % 100;
   return s[(v > 10 && v < 14) ? 0 : (n % 10)] || "th";
 };
@@ -54,24 +54,24 @@ export default function Games() {
     const saved = localStorage.getItem('gamesCache');
     return saved ? JSON.parse(saved) : [];
   });
-  const [filtered, setFiltered]       = useState([]);
-  const [user, setUser]               = useState(null);
-  const [error, setError]             = useState('');
-  const [filters, setFilters]         = useState({
+  const [filtered, setFiltered] = useState([]);
+  const [user, setUser] = useState(null);
+  const [error, setError] = useState('');
+  const [filters, setFilters] = useState({
     name: '',
     sport: '',
     location: '',
     time: ''           // will hold 'YYYY-MM-DD'
   });
   const [participantQuery, setParticipantQuery] = useState('');
-  const [suggestions, setSuggestions]           = useState([]);
-  const [filterUserId, setFilterUserId]         = useState(null);
-  const [showSuggestions, setShowSuggestions]   = useState(false);
+  const [suggestions, setSuggestions] = useState([]);
+  const [filterUserId, setFilterUserId] = useState(null);
+  const [showSuggestions, setShowSuggestions] = useState(false);
 
   useEffect(() => {
     API.get('profile/')
       .then(r => setUser(r.data))
-      .catch(() => {});
+      .catch(() => { });
     fetchGames();
     const tid = setInterval(fetchGames, INTERVAL);
     return () => clearInterval(tid);
@@ -96,13 +96,13 @@ export default function Games() {
     const out = list.filter(g => {
       // name, sport, location filters
       if (filters.name &&
-          !g.name.toLowerCase().includes(filters.name.toLowerCase())
+        !g.name.toLowerCase().includes(filters.name.toLowerCase())
       ) return false;
       if (filters.sport &&
-          !g.sport.name.toLowerCase().includes(filters.sport.toLowerCase())
+        !g.sport.name.toLowerCase().includes(filters.sport.toLowerCase())
       ) return false;
       if (filters.location &&
-          !g.location.toLowerCase().includes(filters.location.toLowerCase())
+        !g.location.toLowerCase().includes(filters.location.toLowerCase())
       ) return false;
 
       // DATE filter: exact match on YYYY-MM-DD
@@ -113,7 +113,7 @@ export default function Games() {
 
       // participant/creator filter
       if (filterUserId) {
-        const isCreator     = g.creator.id === filterUserId;
+        const isCreator = g.creator.id === filterUserId;
         const isParticipant = g.participants.some(p => p.user.id === filterUserId);
         if (!isCreator && !isParticipant) return false;
       }
@@ -180,7 +180,7 @@ export default function Games() {
             value={participantQuery}
             onChange={handleParticipantChange}
             onFocus={() => suggestions.length > 0 && setShowSuggestions(true)}
-            onBlur={() => setTimeout(()=>setShowSuggestions(false), 200)}
+            onBlur={() => setTimeout(() => setShowSuggestions(false), 200)}
             aria-expanded={showSuggestions}
             aria-haspopup="listbox"
           />
@@ -214,10 +214,10 @@ export default function Games() {
             ))}
           </ul>
         </div>
-        {['name','sport','location'].map((field,i) => (
+        {['name', 'sport', 'location'].map((field, i) => (
           <div key={i} className="col">
             <label htmlFor={`${field}Filter`} className="form-label text-secondary">
-              {field.charAt(0).toUpperCase()+field.slice(1)}
+              {field.charAt(0).toUpperCase() + field.slice(1)}
             </label>
             <input
               id={`${field}Filter`}
@@ -250,18 +250,18 @@ export default function Games() {
       <div className="games-grid">
         {filtered.map(game => {
           const stateKey = game.current_state.toLowerCase();
-          const info     = statusMap[stateKey] || {};
-          const isCreator= game.creator.id === user?.id;
-          const joined   = game.participants.some(p=>p.user.id===user?.id);
-          const full     = game.capacity && game.participants.length >= game.capacity;
-          const iconSrc  = SPORT_ICONS[game.sport.name] || SPORT_ICONS.DEFAULT;
+          const info = statusMap[stateKey] || {};
+          const isCreator = game.creator.id === user?.id;
+          const joined = game.participants.some(p => p.user.id === user?.id);
+          const full = game.capacity && game.participants.length >= game.capacity;
+          const iconSrc = SPORT_ICONS[game.sport.name] || SPORT_ICONS.DEFAULT;
 
           return (
             <div key={game.id} className="card shadow mb-3">
               {game.image_url && (
                 <img src={game.image_url}
-                     alt={`${game.name} cover`}
-                     className="card-img-top game-cover"/>
+                  alt={`${game.name} cover`}
+                  className="card-img-top game-cover" />
               )}
 
               <Link to={`/games/${game.id}`} className="text-decoration-none text-reset">
@@ -282,7 +282,7 @@ export default function Games() {
                     src={iconSrc}
                     alt={game.sport.name}
                     className="ms-3"
-                    style={{ width:40, height:40, objectFit:'contain' }}
+                    style={{ width: 40, height: 40, objectFit: 'contain' }}
                   />
                 </div>
               </Link>
@@ -293,21 +293,21 @@ export default function Games() {
                     <Dropdown.Toggle variant="outline-secondary" size="sm">⋮</Dropdown.Toggle>
                     <Dropdown.Menu>
                       <Dropdown.Item as={Link} to={`/games/${game.id}/edit`}>Edit</Dropdown.Item>
-                      <Dropdown.Item onClick={()=>handleCancel(game)}>Cancel</Dropdown.Item>
-                      <Dropdown.Item className="text-danger" onClick={()=>handleDelete(game)}>Delete</Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleCancel(game)}>Cancel</Dropdown.Item>
+                      <Dropdown.Item className="text-danger" onClick={() => handleDelete(game)}>Delete</Dropdown.Item>
                     </Dropdown.Menu>
                   </Dropdown>
                 ) : full ? (
                   <button className="btn btn-secondary" disabled title="Game full">Full</button>
                 ) : joined ? (
-                  <button className="btn btn-outline-danger" onClick={()=>handleJoinLeave(game,false)}>
-                    Leave <FaSignOutAlt className="ms-1"/>
+                  <button className="btn btn-outline-danger" onClick={() => handleJoinLeave(game, false)}>
+                    Leave <FaSignOutAlt className="ms-1" />
                   </button>
                 ) : (
                   <button className="btn btn-primary"
-                          disabled={game.current_state.toLowerCase()!=='open'}
-                          onClick={()=>handleJoinLeave(game,true)}>
-                    Join <FaSignInAlt className="ms-1"/>
+                    disabled={game.current_state.toLowerCase() !== 'open'}
+                    onClick={() => handleJoinLeave(game, true)}>
+                    Join <FaSignInAlt className="ms-1" />
                   </button>
                 )}
               </div>
