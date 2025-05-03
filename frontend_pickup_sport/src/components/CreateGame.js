@@ -21,7 +21,8 @@ export default function CreateGame() {
     capacity: '',
   });
   const [sports, setSports] = useState([]);
-  const [error, setError]   = useState('');
+  const [error, setError]   = useState('');     // generic error
+  const [dateError, setDateError] = useState(''); // validation error
 
   useEffect(() => {
     if (!localStorage.getItem('token')) {
@@ -38,10 +39,33 @@ export default function CreateGame() {
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(fd => ({ ...fd, [name]: value }));
+    // clear previous errors when user edits
+    if (name === 'start_time' || name === 'end_time') {
+      setDateError('');
+    }
+    if (error) setError('');
   };
 
   const handleSubmit = async e => {
     e.preventDefault();
+    setDateError('');
+    setError('');
+
+    // Validation: start time in the future
+    const now = new Date();
+    const start = new Date(formData.start_time);
+    const end   = new Date(formData.end_time);
+
+    if (start <= now) {
+      setDateError('Start time must be in the future.');
+      return;
+    }
+    // Validation: end after start
+    if (end <= start) {
+      setDateError('End time must be after the start time.');
+      return;
+    }
+
     try {
       await API.post('games/create/', {
         ...formData,
@@ -59,17 +83,22 @@ export default function CreateGame() {
     <div className="container mt-4">
       <h2>Create a Game</h2>
       {error && <div className="alert alert-danger">{error}</div>}
+      {dateError && <div className="alert alert-warning">{dateError}</div>}
       <form onSubmit={handleSubmit}>
+        {/* Name */}
         <div className="mb-3">
           <label>Game Name:</label>
           <input
-            type="text" name="name"
+            type="text"
+            name="name"
             className="form-control"
             value={formData.name}
             onChange={handleChange}
             required
           />
         </div>
+
+        {/* Sport */}
         <div className="mb-3">
           <label>Sport:</label>
           <select
@@ -85,6 +114,8 @@ export default function CreateGame() {
             ))}
           </select>
         </div>
+
+        {/* Capacity */}
         <div className="mb-3">
           <label>Capacity (max players):</label>
           <input
@@ -97,35 +128,45 @@ export default function CreateGame() {
             onChange={handleChange}
           />
         </div>
+
+        {/* Location Picker */}
         <div className="mb-3">
           <label className="form-label">Pick a Location:</label>
           <LocationPicker
             location={formData.location}
-            setLocation={loc => setFormData(fd=>({...fd,location:loc}))}
+            setLocation={loc => setFormData(fd => ({ ...fd, location: loc }))}
             setLatLng={({ lat, lng }) =>
               setFormData(fd => ({ ...fd, latitude: lat, longitude: lng }))}
           />
         </div>
+
+        {/* Start Time */}
         <div className="mb-3">
           <label>Start Time:</label>
           <input
-            type="datetime-local" name="start_time"
+            type="datetime-local"
+            name="start_time"
             className="form-control"
             value={formData.start_time}
             onChange={handleChange}
             required
           />
         </div>
+
+        {/* End Time */}
         <div className="mb-3">
           <label>End Time:</label>
           <input
-            type="datetime-local" name="end_time"
+            type="datetime-local"
+            name="end_time"
             className="form-control"
             value={formData.end_time}
             onChange={handleChange}
             required
           />
         </div>
+
+        {/* Skill Level */}
         <div className="mb-3">
           <label>Skill Level:</label>
           <select
@@ -142,7 +183,7 @@ export default function CreateGame() {
         </div>
 
         <button type="submit" className="btn btn-primary">
-          Create Game      
+          Create Game
         </button>
       </form>
     </div>
