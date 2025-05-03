@@ -108,7 +108,6 @@ export default function GameDetail() {
 
   const handleJoin = async () => {
     await API.post(`games/${id}/join/`);
-    // re-fetch
     const { data } = await API.get(`games/${id}/`);
     setGame(data);
   };
@@ -167,6 +166,11 @@ export default function GameDetail() {
 
                 <dt className="col-sm-4">Skill Level</dt>
                 <dd className="col-sm-8">{game.skill_level}</dd>
+
+                <dt className="col-sm-4">Capacity</dt>
+                <dd className="col-sm-8">
+                  {game.capacity != null ? game.capacity : 'Unlimited'}
+                </dd>
 
                 <dt className="col-sm-4">Creator</dt>
                 <dd className="col-sm-8">{game.creator.name}</dd>
