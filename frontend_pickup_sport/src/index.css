@@ -233,3 +233,9 @@ body.dark-mode .accordion-button::after {
 .participant-col .dropdown-menu {
   z-index: 2000 !important;
 }
+
+/* nudge the Clear Filters button up by a few pixels */
+.clear-btn-wrapper {
+  position: relative;
+  top: -8px;
+}

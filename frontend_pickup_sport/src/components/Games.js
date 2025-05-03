@@ -8,7 +8,7 @@ import {
   FaSignInAlt,
   FaSignOutAlt
 } from 'react-icons/fa';
-import { Dropdown } from 'react-bootstrap';
+import { Dropdown, Button } from 'react-bootstrap';
 import { DateTime } from 'luxon';
 import API from '../api/api';
 import { SPORT_ICONS } from '../constants/sportIcons';
@@ -69,7 +69,7 @@ export default function Games() {
   useEffect(() => {
     API.get('profile/')
       .then(r => setUser(r.data))
-      .catch(() => {});
+      .catch(() => { });
     fetchGames();
     const tid = setInterval(fetchGames, INTERVAL);
     return () => clearInterval(tid);
@@ -93,13 +93,13 @@ export default function Games() {
   function applyFilters(list) {
     const out = list.filter(g => {
       if (filters.name &&
-          !g.name.toLowerCase().includes(filters.name.toLowerCase())
+        !g.name.toLowerCase().includes(filters.name.toLowerCase())
       ) return false;
       if (filters.sport &&
-          !g.sport.name.toLowerCase().includes(filters.sport.toLowerCase())
+        !g.sport.name.toLowerCase().includes(filters.sport.toLowerCase())
       ) return false;
       if (filters.location &&
-          !g.location.toLowerCase().includes(filters.location.toLowerCase())
+        !g.location.toLowerCase().includes(filters.location.toLowerCase())
       ) return false;
       if (filters.time) {
         const gameDate = DateTime.fromISO(g.start_time).toISODate();
@@ -139,6 +139,14 @@ export default function Games() {
     }
   };
 
+  const handleClearFilters = () => {
+    setFilters({ name: '', sport: '', location: '', time: '' });
+    setParticipantQuery('');
+    setFilterUserId(null);
+    setSuggestions([]);
+    setShowSuggestions(false);
+  };
+
   const handleJoinLeave = async (game, join) => {
     try {
       await API.post(`games/${game.id}/${join ? 'join' : 'leave'}/`);
@@ -157,7 +165,7 @@ export default function Games() {
         <p className="lead text-muted">Browse upcoming sports events</p>
       </header>
 
-      <form className="row g-3 mb-4">
+      <form className="row g-3 mb-4 align-items-end">
         {/* Participant Search */}
         <div className="col participant-col">
           <label htmlFor="participantFilter" className="form-label text-secondary">
@@ -235,6 +243,13 @@ export default function Games() {
             value={filters.time}
             onChange={handleFilterChange}
           />
+        </div>
+
+        {/* Clear Filters Button */}
+        <div className="col-auto text-end clear-btn-wrapper">
+          <Button variant="outline-secondary" onClick={handleClearFilters}>
+            Clear Filters
+          </Button>
         </div>
       </form>
 
