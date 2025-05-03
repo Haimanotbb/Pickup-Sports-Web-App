@@ -32,6 +32,7 @@ export default function CreateGame() {
   const [loadingSports, setLoadingSports] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [dateError, setDateError] = useState(''); // validation error
 
   // Redirect if not logged in
   useEffect(() => {
