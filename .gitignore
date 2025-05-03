@@ -1,6 +1,31 @@
+# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
+
+# dependencies
+/node_modules
+/.pnp
+.pnp.js
+
+# testing
+/coverage
+
+# production
+/build
+
+# misc
+.DS_Store
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+
+#other (backend )
 cpsc419/
 __pycache__/
 *.pyc
 node_modules/
-pickup_sports/pickup_sports/__pycache__/
-pickup_sports/scheduler/__pycache__/
+.env
