@@ -108,7 +108,7 @@ export default function Profile() {
       <Accordion defaultActiveKey="0" className="mt-4 shadow-sm">
         <Accordion.Item eventKey="0">
           <Accordion.Header>
-            My Past Games ({archived?.length ?? '…'})
+            My Past Created Games ({archived?.length ?? '…'})
           </Accordion.Header>
           <Accordion.Body>
             {archived === null ? (
