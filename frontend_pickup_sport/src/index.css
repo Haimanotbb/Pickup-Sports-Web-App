@@ -26,7 +26,6 @@ code {
 .text-yale:hover,
 .text-yale:focus {
   color: #003087 !important;
-  /* a slightly darker Yale hover state */
 }
 
 /* =========================================================================== */
@@ -59,7 +58,7 @@ code {
   position: relative;
   z-index: 1;
   background: rgba(255, 255, 255, 0.9);
-  border-radius: 0.5rem;
+  border-radius: 1rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   padding: 2rem 1.5rem 1.5rem;
   max-width: 360px;
@@ -67,7 +66,6 @@ code {
   text-align: center;
 }
 
-/* internal logo */
 .login-logo {
   width: 120px;
   margin-bottom: 1rem;
@@ -110,9 +108,10 @@ code {
   height: 180px;
   object-fit: cover;
   width: 100%;
+  border-top-left-radius: 1.5rem;
+  border-top-right-radius: 1.5rem;
 }
 
-/* TRUNCATE LONG TITLES */
 .card-title {
   display: -webkit-box;
   -webkit-box-orient: vertical;
@@ -120,45 +119,49 @@ code {
   overflow: hidden;
 }
 
-/* Yale blue utility */
-.text-yale {
-  color: var(--yale-blue) !important;
+/* =========================================================================== */
+/* CIRCULAR STYLING                                                            */
+/* =========================================================================== */
+.card-circular {
+  border-radius: 1.5rem !important;
+  overflow: hidden;
 }
 
-/* Dark-mode example */
+.input-circular {
+  border-radius: 1.25rem !important;
+}
+
+.btn-circular {
+  border-radius: 1.25rem !important;
+  padding-left: 1.25rem;
+  padding-right: 1.25rem;
+}
+
+.badge-circular {
+  border-radius: 1.25rem !important;
+  padding: 0.5rem 1rem;
+}
+
+.dropdown-circular {
+  border-radius: 1.25rem !important;
+}
+
+.alert-circular {
+  border-radius: 1.25rem !important;
+}
+
+/* =========================================================================== */
+/* Dark Mode Styles                                                            */
+/* =========================================================================== */
 body.dark-mode {
   background-color: #121212;
   color: #e0e0e0;
 }
 
-/* Tweak navbar padding */
-.navbar {
-  padding-top: 0.5rem;
-  padding-bottom: 0.5rem;
-}
-
-/* Make the small filter inputs uniform */
-.navbar .form-control-sm {
-  min-width: 100px;
-}
-
-/* Reduce the space in the filter group */
-@media (min-width: 768px) {
-  .navbar .form-control-sm {
-    margin-right: 0.5rem;
-  }
-}
-
-/* =========================================================================== */
-/* Dark Mode Stuff                                                      */
-/* =========================================================================== */
-
-/* make “.text-muted” really light in dark-mode */
 body.dark-mode .text-muted {
   color: rgba(255, 255, 255, 0.7) !important;
 }
 
-/* if you want that lead paragraph ever so slightly brighter: */
 body.dark-mode p.lead.text-muted {
   color: rgba(255, 255, 255, 0.85) !important;
 }
@@ -166,15 +169,8 @@ body.dark-mode p.lead.text-muted {
 body.dark-mode .card,
 body.dark-mode .card.shadow {
   background-color: #2e2e2e !important;
-  /* a mid-gray */
   border-color: #444 !important;
   color: #e0e0e0 !important;
-}
-
-/* Dark-mode overrides for Profile past-games accordion */
-body.dark-mode {
-  /* make sure your container text is light */
-  color: #e0e0e0;
 }
 
 body.dark-mode .accordion,
@@ -186,30 +182,25 @@ body.dark-mode .accordion-body {
   color: #e0e0e0 !important;
 }
 
-/* When collapsed */
 body.dark-mode .accordion-button {
   background-color: #2a2a2a !important;
   color: #e0e0e0 !important;
 }
 
-/* Past games list items */
 body.dark-mode .list-group-item {
   background-color: #2a2a2a !important;
   border-color: #444 !important;
   color: #e0e0e0 !important;
 }
 
-/* Make sure muted text (e.g. timestamps) shows up */
 body.dark-mode .text-muted {
   color: #999 !important;
 }
 
-/* Keep badges readable */
 body.dark-mode .badge {
   opacity: 0.85;
 }
 
-/* If you want the Accordion header arrow also white */
 body.dark-mode .accordion-button::after {
   filter: brightness(0) invert(1);
 }

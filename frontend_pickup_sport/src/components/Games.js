@@ -1,5 +1,3 @@
-// src/components/Games.js
-
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -27,24 +25,23 @@ const formatSexy = iso => {
   const dt = DateTime.fromISO(iso).setLocale("en");
   const day = dt.day;
   const suffix = getOrdinal(day);
-  //use toFormat for parts, then concatenate
   return `${dt.toFormat("EEEE, LLLL d")}${suffix} at ${dt.toFormat("h:mm a")}`;
 };
 
 const statusMap = {
   open: {
     text: 'Open',
-    class: 'bg-success',
+    class: 'bg-success badge-circular',
     icon: <FaRegCheckCircle className="me-1" />
   },
   in_progress: {
     text: 'In Progress',
-    class: 'bg-warning text-dark',
+    class: 'bg-warning text-dark badge-circular',
     icon: <FaPlayCircle className="me-1" />
   },
   cancelled: {
     text: 'Cancelled',
-    class: 'bg-danger',
+    class: 'bg-danger badge-circular',
     icon: <FaTimesCircle className="me-1" />
   }
 };
@@ -61,7 +58,7 @@ export default function Games() {
     name: '',
     sport: '',
     location: '',
-    time: ''           // will hold 'YYYY-MM-DD'
+    time: ''
   });
   const [participantQuery, setParticipantQuery] = useState('');
   const [suggestions, setSuggestions] = useState([]);
@@ -94,7 +91,6 @@ export default function Games() {
 
   function applyFilters(list) {
     const out = list.filter(g => {
-      // name, sport, location filters
       if (filters.name &&
         !g.name.toLowerCase().includes(filters.name.toLowerCase())
       ) return false;
@@ -105,13 +101,11 @@ export default function Games() {
         !g.location.toLowerCase().includes(filters.location.toLowerCase())
       ) return false;
 
-      // DATE filter: exact match on YYYY-MM-DD
       if (filters.time) {
         const gameDate = DateTime.fromISO(g.start_time).toISODate();
         if (gameDate !== filters.time) return false;
       }
 
-      // participant/creator filter
       if (filterUserId) {
         const isCreator = g.creator.id === filterUserId;
         const isParticipant = g.participants.some(p => p.user.id === filterUserId);
@@ -161,13 +155,11 @@ export default function Games() {
   return (
     <main className="container mt-5">
       <header className="mb-4">
-        <h1 className="display-6">Find & Join a Game</h1>
+        <h1 className="display-6 text-yale">Find & Join a Game</h1>
         <p className="lead text-muted">Browse upcoming sports events</p>
       </header>
 
-      {/* Filters Form */}
       <form className="row g-3 mb-4">
-        {/* Participant Search */}
         <div className="col" style={{ position: 'relative' }}>
           <label htmlFor="participantFilter" className="form-label text-secondary">
             Player
@@ -175,7 +167,7 @@ export default function Games() {
           <input
             id="participantFilter"
             type="text"
-            className="form-control"
+            className="form-control input-circular"
             placeholder="Enter a player"
             value={participantQuery}
             onChange={handleParticipantChange}
@@ -185,7 +177,7 @@ export default function Games() {
             aria-haspopup="listbox"
           />
           <ul
-            className={`dropdown-menu${showSuggestions ? ' show' : ''}`}
+            className={`dropdown-menu${showSuggestions ? ' show' : ''} dropdown-circular`}
             style={{
               position: 'absolute',
               top: '100%',
@@ -223,7 +215,7 @@ export default function Games() {
               id={`${field}Filter`}
               name={field}
               type="text"
-              className="form-control"
+              className="form-control input-circular"
               placeholder={`Enter ${field}`}
               value={filters[field]}
               onChange={handleFilterChange}
@@ -238,14 +230,12 @@ export default function Games() {
             id="timeFilter"
             name="time"
             type="date"
-            className="form-control"
+            className="form-control input-circular"
             value={filters.time}
             onChange={handleFilterChange}
           />
         </div>
       </form>
-
-      {error && <div role="alert" className="alert alert-danger">{error}</div>}
 
       <div className="games-grid">
         {filtered.map(game => {
@@ -257,17 +247,18 @@ export default function Games() {
           const iconSrc = SPORT_ICONS[game.sport.name] || SPORT_ICONS.DEFAULT;
 
           return (
-            <div key={game.id} className="card shadow mb-3">
+            <div key={game.id} className="card shadow mb-3 card-circular">
               {game.image_url && (
-                <img src={game.image_url}
+                <img
+                  src={game.image_url}
                   alt={`${game.name} cover`}
-                  className="card-img-top game-cover" />
+                  className="card-img-top game-cover"
+                />
               )}
-
               <Link to={`/games/${game.id}`} className="text-decoration-none text-reset">
                 <div className="card-body d-flex align-items-center">
                   <div className="flex-grow-1">
-                    <h5 className="card-title">{game.name}</h5>
+                    <h5 className="card-title text-yale">{game.name}</h5>
                     <p className="card-text text-muted mb-1">{game.sport.name}</p>
                     <p className="card-text mb-2 text-muted">
                       <time dateTime={game.start_time}>
@@ -286,11 +277,16 @@ export default function Games() {
                   />
                 </div>
               </Link>
-
               <div className="card-footer d-flex justify-content-end">
                 {isCreator ? (
                   <Dropdown align="end">
-                    <Dropdown.Toggle variant="outline-secondary" size="sm">⋮</Dropdown.Toggle>
+                    <Dropdown.Toggle
+                      variant="outline-secondary"
+                      size="sm"
+                      className="btn-circular"
+                    >
+                      ⋮
+                    </Dropdown.Toggle>
                     <Dropdown.Menu>
                       <Dropdown.Item as={Link} to={`/games/${game.id}/edit`}>Edit</Dropdown.Item>
                       <Dropdown.Item onClick={() => handleCancel(game)}>Cancel</Dropdown.Item>
@@ -298,15 +294,22 @@ export default function Games() {
                     </Dropdown.Menu>
                   </Dropdown>
                 ) : full ? (
-                  <button className="btn btn-secondary" disabled title="Game full">Full</button>
+                  <button className="btn btn-secondary btn-circular" disabled title="Game full">
+                    Full
+                  </button>
                 ) : joined ? (
-                  <button className="btn btn-outline-danger" onClick={() => handleJoinLeave(game, false)}>
+                  <button
+                    className="btn btn-outline-danger btn-circular"
+                    onClick={() => handleJoinLeave(game, false)}
+                  >
                     Leave <FaSignOutAlt className="ms-1" />
                   </button>
                 ) : (
-                  <button className="btn btn-primary"
+                  <button
+                    className="btn btn-primary btn-circular"
                     disabled={game.current_state.toLowerCase() !== 'open'}
-                    onClick={() => handleJoinLeave(game, true)}>
+                    onClick={() => handleJoinLeave(game, true)}
+                  >
                     Join <FaSignInAlt className="ms-1" />
                   </button>
                 )}
@@ -317,7 +320,7 @@ export default function Games() {
       </div>
 
       <div className="d-flex justify-content-end mt-4">
-        <Link to="/create-game" className="btn btn-success">
+        <Link to="/create-game" className="btn btn-success btn-circular">
           + Create New Game
         </Link>
       </div>
