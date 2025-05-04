@@ -21,12 +21,14 @@ const getOrdinal = n => {
   return s[(v > 10 && v < 14) ? 0 : (n % 10)] || "th";
 };
 
+// Returns the appropriate ordinal suffix for a given number.
 const formatSexy = iso => {
   const dt = DateTime.fromISO(iso).setLocale("en");
   const suffix = getOrdinal(dt.day);
   return `${dt.toFormat("EEEE, LLLL d")}${suffix} at ${dt.toFormat("h:mm a")}`;
 };
 
+// Maps game states to their display properties.
 const statusMap = {
   open: {
     text: 'Open',
@@ -44,6 +46,7 @@ const statusMap = {
     icon: <FaTimesCircle className="me-1" />
   }
 };
+
 
 export default function Games() {
   const [games, setGames] = useState(() => {
@@ -65,6 +68,7 @@ export default function Games() {
   const [showSuggestions, setShowSuggestions] = useState(false);
   const navigate = useNavigate();
 
+  // Fetches user profile and games data in intervals.
   useEffect(() => {
     API.get('profile/')
       .then(r => setUser(r.data))
@@ -78,6 +82,7 @@ export default function Games() {
     applyFilters(games);
   }, [games, filters, filterUserId]);
 
+  // Fetches games data from the API and caches it in localStorage.
   async function fetchGames() {
     try {
       const { data } = await API.get('games/');
@@ -114,11 +119,13 @@ export default function Games() {
     setFiltered(out);
   }
 
+  // Handles filter input changes and updates the filters state.
   const handleFilterChange = e => {
     const { name, value } = e.target;
     setFilters(f => ({ ...f, [name]: value }));
   };
 
+  // Handles participant search input changes and fetches suggestions from the API.
   const handleParticipantChange = async e => {
     const q = e.target.value;
     setParticipantQuery(q);

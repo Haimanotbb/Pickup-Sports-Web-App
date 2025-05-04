@@ -4,10 +4,7 @@ import '../index.css';
 
 const Login = () => (
   <div className="login-page">
-    {/* Watermark behind everything */}
     <div className="background-logo" />
-
-    {/* The centered login card */}
     <div className="login-card">
       <img src={logoUrl} alt="Y-Pickup Logo" className="login-logo" />
       <h1 className="login-title">Y-Pickup</h1>

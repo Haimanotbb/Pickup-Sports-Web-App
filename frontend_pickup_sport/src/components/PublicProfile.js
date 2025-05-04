@@ -16,6 +16,7 @@ export default function PublicProfile() {
   const [profile, setProfile] = useState(null);
   const [error, setError] = useState('');
 
+  // Fetches the public profile of a user based on the ID in the URL parameters.
   useEffect(() => {
     let mounted = true;
     const fetchProfile = async () => {

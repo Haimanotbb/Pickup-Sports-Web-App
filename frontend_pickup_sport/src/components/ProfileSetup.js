@@ -12,8 +12,9 @@ const ProfileSetup = () => {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  //loads profile and sports data
   useEffect(() => {
-    // profile
     API.get('profile/')
       .then(res => {
         const { name, email, bio, favorite_sports } = res.data;
@@ -35,11 +36,13 @@ const ProfileSetup = () => {
     setFormData(prev => ({ ...prev, [name]: value }));
   };
 
+
   const handleMultiSelectChange = (e) => {
     const selectedIds = Array.from(e.target.selectedOptions, o => o.value);
     setFormData(prev => ({ ...prev, favorite_sports: selectedIds }));
   };
 
+  // Handle form submission
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {

@@ -4,7 +4,6 @@ from rest_framework import status, viewsets, permissions
 from django.contrib.auth import authenticate
 from rest_framework.permissions import IsAuthenticated, AllowAny,IsAuthenticatedOrReadOnly
 from rest_framework.authtoken.models import Token
-# from django.contrib.auth import get_user_model
 
 from .models import Game, Participant, Sport, Comment
 from .serializers import GameSerializer, SportSerializer, ParticipantSerializer, CustomUserProfileUpdateSerializer, UserProfileSerializer, CommentSerializer
@@ -30,7 +29,7 @@ def make_random_password(length=8):
 CAS_SERVER_URL = "https://secure6.its.yale.edu/cas/"
 FRONTEND_URL_AFTER_LOGIN = "http://localhost:3000/games"
 
-
+#API endpoints for CAS authentication
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def cas_login(request):
@@ -81,6 +80,7 @@ def cas_login(request):
         return HttpResponse("CAS authentication failed.", status=401)
 
 
+#API endpoint for logging out of CAS
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def cas_logout(request):
@@ -90,6 +90,7 @@ def cas_logout(request):
     return redirect(cas_logout_url)
 
 
+#API endpoint for setting up user profile
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def public_profile(request, id):
@@ -102,7 +103,7 @@ def public_profile(request, id):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-# Get user profile
+# API for getting user profile
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def profile_detail(request):
@@ -113,6 +114,7 @@ def profile_detail(request):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+# API for updating user profile
 @api_view(['PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def profile_update(request):
@@ -130,6 +132,8 @@ def profile_update(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+
+# API for leaving a game
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def leave_game(request, pk):
@@ -162,6 +166,7 @@ def leave_game(request, pk):
 
 
 
+# API for getting the list of games
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def game_list(request):
@@ -178,6 +183,7 @@ def game_list(request):
 
 
 
+# API for creating a game
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def game_create(request):
@@ -188,6 +194,7 @@ def game_create(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# API for cancelling a game
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def cancel_game(request, pk):
@@ -202,6 +209,7 @@ def cancel_game(request, pk):
     return Response({"message": "Game cancelled. It will remain cancelled until the scheduled end time."}, status=status.HTTP_200_OK)
 
 
+# API for getting game details
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def game_detail(request, pk):
@@ -213,6 +221,7 @@ def game_detail(request, pk):
     return Response(serializer.data)
 
 
+# API for updating a game
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def game_update(request, pk):
@@ -229,6 +238,7 @@ def game_update(request, pk):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+# API for deleting a game
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def game_delete(request, pk):
@@ -251,6 +261,8 @@ def my_archived_games(request):
     serializer = GameSerializer(games, many=True)
     return Response(serializer.data)
 
+
+# API for joining a game
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def join_game(request, pk):
@@ -277,6 +289,7 @@ def join_game(request, pk):
     return Response({"message": "Successfully joined the game"}, status=status.HTTP_200_OK)
 
 
+# API for getting the list of sports
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def sport_list(request):
@@ -284,12 +297,13 @@ def sport_list(request):
     serializer = SportSerializer(sports, many=True)
     return Response(serializer.data)
 
+
+
 @api_view(['GET','POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def game_comments(request, game_pk):
     """
-    GET  /api/games/{game_pk}/comments/   → list
-    POST /api/games/{game_pk}/comments/   → create
+        API for getting and posting comments for a game
     """
     try:
         game = Game.objects.get(pk=game_pk)
@@ -321,12 +335,10 @@ def game_comments(request, game_pk):
 
 User = get_user_model()
 
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def user_list(request):
     """
-    GET /api/users/?search=<q>
     Return users whose name, username or email contains q.
     """
     q = request.query_params.get('search', '').strip()
@@ -340,11 +352,12 @@ def user_list(request):
     serializer = UserProfileSerializer(qs, many=True)
     return Response(serializer.data)
 
+
+
 @api_view(['GET'])
 @permission_classes([IsAuthenticatedOrReadOnly])
 def user_games(request, user_id):
     """
-    GET /api/users/<user_id>/games/
     Return all games where user is creator or participant.
     """
     games = Game.objects.filter(

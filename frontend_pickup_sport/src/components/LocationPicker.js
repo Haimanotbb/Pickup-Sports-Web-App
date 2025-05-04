@@ -7,10 +7,13 @@ import {
   useLoadScript
 } from '@react-google-maps/api';
 
+//Define Map container style and default center(new haven)
 const MAP_CONTAINER_STYLE = { height: '300px', width: '100%' };
 const DEFAULT_CENTER      = { lat: 41.3163, lng: -72.9223 };
 
+
 export default function LocationPicker({ location, setLocation, setLatLng }) {
+  //load google maps api key from env file
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_KEY,
     libraries: ['places'],             
@@ -19,10 +22,13 @@ export default function LocationPicker({ location, setLocation, setLatLng }) {
   const [marker, setMarker]     = useState(null);
   const [address, setAddress]   = useState(location || '');
   const autocompleteRef         = useRef(null);
+  
+  //update marker and address when user clicks on map
   const updateMarkerAndAddress = useCallback((lat, lng) => {
     setMarker({ lat, lng });
     setLatLng({ lat, lng });
 
+    //use geocoder to get address from lat lng
     const geocoder = new window.google.maps.Geocoder();
     geocoder.geocode({ location: { lat, lng } }, (results, status) => {
       if (status === 'OK' && results[0]) {
@@ -32,6 +38,8 @@ export default function LocationPicker({ location, setLocation, setLatLng }) {
       }
     });
   }, [setLocation, setLatLng]);
+
+  //update marker and address when user selects a place from autocomplete
   const onPlaceChanged = () => {
     const auto = autocompleteRef.current;
     if (!auto) return;
@@ -46,6 +54,8 @@ export default function LocationPicker({ location, setLocation, setLatLng }) {
       setLocation(formatted);
     }
   };
+
+  //update marker and address when user presses enter in input field
   const onInputKeyDown = e => {
     if (e.key === 'Enter') {
       e.preventDefault();

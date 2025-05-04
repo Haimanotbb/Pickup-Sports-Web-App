@@ -7,6 +7,7 @@ const MyGames = () => {
   const [archived, setArchived] = useState([]);
   const [error, setError] = useState('');
 
+  // Fetches active and archived games for the user and handles errors if the API call fails.
   useEffect(() => {
     const fetch = async () => {
       try {
