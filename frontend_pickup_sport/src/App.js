@@ -12,8 +12,13 @@ import MyGames from './components/MyGames';
 import EditGame from './components/EditGame';
 
 function ProtectedRoute() {
-  const token = localStorage.getItem('token');
-  return token ? <Outlet /> : <Navigate to="/login" replace />;
+  const location = useLocation();
+  const qs = new URLSearchParams(location.search);
+  const token = localStorage.getItem('token') || qs.get('token');
+
+  return token
+    ? <Outlet />
+    : <Navigate to="/login" replace />;
 }
 
 function AppContent() {
