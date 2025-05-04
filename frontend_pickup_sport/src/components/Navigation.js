@@ -1,4 +1,3 @@
-// src/components/Navigation.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import 'bootstrap/dist/js/bootstrap.bundle.min';
@@ -24,17 +23,11 @@ const Navigation = () => {
   return (
     <nav className="navbar navbar-light bg-white shadow-sm sticky-top">
       <div className="container d-flex align-items-center">
-
-        {/* Brand on the left */}
         <Link to="/games" className="navbar-brand fw-bold fs-4">
           <span className="text-dark">Y</span>
           <span className="text-yale">-Pickup</span>
         </Link>
-
-        {/* Right‐side group (always visible, no collapse) */}
         <div className="ms-auto d-flex align-items-center">
-
-          {/* Dark‐mode toggle */}
           <button
             className="btn btn-link nav-link p-0 me-2 dark-toggle text-yale"
             onClick={toggleDark}
@@ -43,8 +36,6 @@ const Navigation = () => {
           >
             {darkMode ? <FaSun size={18} /> : <FaMoon size={18} />}
           </button>
-
-          {/* Profile dropdown */}
           <div className="dropdown mx-2">
             <button
               className="btn btn-link nav-link d-flex align-items-center p-0 dropdown-toggle text-yale"
@@ -76,8 +67,6 @@ const Navigation = () => {
               </li>
             </ul>
           </div>
-
-          {/* New Game CTA */}
           <Link
             to="/create-game"
             className="btn btn-primary btn-sm d-flex align-items-center ms-3"

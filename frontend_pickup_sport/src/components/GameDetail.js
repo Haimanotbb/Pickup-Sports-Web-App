@@ -1,4 +1,3 @@
-// src/components/GameDetail.jsx
 import React, { useEffect, useState } from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import {
@@ -188,8 +187,6 @@ export default function GameDetail() {
           </Row>
 
           <hr />
-
-          {/* Participants */}
           <h5 className="h6">Participants ({game.participants.length})</h5>
           <ListGroup className="mb-4">
             {game.participants.map(p => (
@@ -201,7 +198,6 @@ export default function GameDetail() {
             ))}
           </ListGroup>
 
-          {/* Comments (only creator or joined) */}
           {(isCreator || joined) && (
             <>
               <h5 className="h6">Comments ({comments.length})</h5>
@@ -236,8 +232,6 @@ export default function GameDetail() {
             </>
           )}
         </Card.Body>
-
-        {/* Footer: Join/Leave or Creator actions */}
         <Card.Footer className="d-flex justify-content-end">
           {!isCreator ? (
             joined ? (

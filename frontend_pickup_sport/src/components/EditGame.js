@@ -1,4 +1,3 @@
-// src/components/EditGame.jsx
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -27,11 +26,13 @@ import API from '../api/api';
 import LocationPicker from './LocationPicker';
 import 'bootstrap/dist/css/bootstrap.min.css';
 
+
+
 export default function EditGame() {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // initial form state
+  //form data
   const [formData, setFormData] = useState({
     name: '',
     sport_id: '',
@@ -49,14 +50,14 @@ export default function EditGame() {
   const [error, setError] = useState('');
   const [dateError, setDateError] = useState('');
 
-  // compute min datetime-local in user's local timezone
+  //timezone offset
   const toLocalInput = dt => {
     const offset = dt.getTimezoneOffset() * 60000;
     return new Date(dt - offset).toISOString().slice(0, 16);
   };
-  const [minStart] = useState(toLocalInput(new Date()));
 
-  // load sports and current game data
+  // Loads sports and game data, then populates the form while ensuring the component is still mounted.
+  const [minStart] = useState(toLocalInput(new Date()));
   useEffect(() => {
     let mounted = true;
     Promise.all([API.get('sports/'), API.get(`games/${id}/`)])
@@ -80,6 +81,7 @@ export default function EditGame() {
     return () => { mounted = false; };
   }, [id]);
 
+  //handle form input changes
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(fd => ({ ...fd, [name]: value }));
@@ -87,6 +89,7 @@ export default function EditGame() {
     if (error) setError('');
   };
 
+  //handle location and coordinates changes
   const handleLocation = loc => {
     setFormData(fd => ({ ...fd, location: loc }));
   };
@@ -94,12 +97,12 @@ export default function EditGame() {
     setFormData(fd => ({ ...fd, latitude: lat, longitude: lng }));
   };
 
+
+  //handle form submission
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
     setDateError('');
-
-    // ensure start is in the future
     const now = new Date();
     const start = new Date(formData.start_time);
     if (start <= now) {
@@ -144,7 +147,6 @@ export default function EditGame() {
 
           <Form onSubmit={handleSubmit}>
             <Row className="g-3">
-              {/* Game Name */}
               <Col md={6}>
                 <Form.Group controlId="name">
                   <Form.Label>Name</Form.Label>
@@ -161,8 +163,6 @@ export default function EditGame() {
                   </InputGroup>
                 </Form.Group>
               </Col>
-
-              {/* Sport */}
               <Col md={6}>
                 <Form.Group controlId="sport_id">
                   <Form.Label>Sport</Form.Label>
@@ -182,8 +182,6 @@ export default function EditGame() {
                   </InputGroup>
                 </Form.Group>
               </Col>
-
-              {/* Capacity */}
               <Col md={6}>
                 <Form.Group controlId="capacity">
                   <Form.Label>Capacity</Form.Label>
@@ -200,8 +198,6 @@ export default function EditGame() {
                   </InputGroup>
                 </Form.Group>
               </Col>
-
-              {/* Skill Level */}
               <Col md={6}>
                 <Form.Group controlId="skill_level">
                   <Form.Label>Skill Level</Form.Label>
@@ -220,8 +216,6 @@ export default function EditGame() {
                   </InputGroup>
                 </Form.Group>
               </Col>
-
-              {/* Location */}
               <Col xs={12}>
                 <Form.Label>Location</Form.Label>
                 <InputGroup>
@@ -233,8 +227,6 @@ export default function EditGame() {
                   />
                 </InputGroup>
               </Col>
-
-              {/* Start Time */}
               <Col md={6}>
                 <Form.Group controlId="start_time">
                   <Form.Label>Start Time</Form.Label>
@@ -251,8 +243,6 @@ export default function EditGame() {
                   </InputGroup>
                 </Form.Group>
               </Col>
-
-              {/* End Time */}
               <Col md={6}>
                 <Form.Group controlId="end_time">
                   <Form.Label>End Time</Form.Label>

@@ -3,8 +3,6 @@ from .models import CustomUser, Sport, Game, Participant, Comment
 from django.conf import settings
 
 # Serializer for CustomUser
-
-
 class CustomUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = CustomUser
@@ -12,8 +10,6 @@ class CustomUserSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 # Serializer for Sport
-
-
 class SportSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sport
@@ -21,15 +17,13 @@ class SportSerializer(serializers.ModelSerializer):
         read_only_fields = ['id']
 
 # Serializer for updating user profiles
-
-
 class CustomUserProfileUpdateSerializer(serializers.ModelSerializer):
     favorite_sports = serializers.PrimaryKeyRelatedField(
         queryset=Sport.objects.all(),
         many=True,
         required=False
     )
-    email = serializers.EmailField(required=False)  # Allow updating email
+    email = serializers.EmailField(required=False)  
 
     class Meta:
         model = CustomUser
@@ -44,9 +38,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
         model = CustomUser
         fields = ['id', 'email', 'name', 'bio', 'favorite_sports']
 
+
 # Serializer for Participant (junction table)
-
-
 class ParticipantSerializer(serializers.ModelSerializer):
     user = CustomUserSerializer(read_only=True) 
 
@@ -54,6 +47,7 @@ class ParticipantSerializer(serializers.ModelSerializer):
         model = Participant
         fields = ['id', 'user']
         read_only_fields = ['id']
+
 
 # serializer for comments section
 class CommentSerializer(serializers.ModelSerializer):
@@ -64,6 +58,7 @@ class CommentSerializer(serializers.ModelSerializer):
         model = Comment
         fields = ['id', 'game', 'author', 'author_name', 'text', 'created']
         read_only_fields = ['id', 'author_username', 'created']
+        
 
 # Serializer for Game
 class GameSerializer(serializers.ModelSerializer):

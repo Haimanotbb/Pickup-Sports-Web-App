@@ -13,7 +13,7 @@ const DEFAULT_CENTER      = { lat: 41.3163, lng: -72.9223 };
 export default function LocationPicker({ location, setLocation, setLatLng }) {
   const { isLoaded, loadError } = useLoadScript({
     googleMapsApiKey: process.env.REACT_APP_GOOGLE_MAPS_KEY,
-    libraries: ['places'],              // ← load the autocomplete library
+    libraries: ['places'],             
   });
 
   const [marker, setMarker]     = useState(null);

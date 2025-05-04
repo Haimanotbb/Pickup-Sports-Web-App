@@ -101,9 +101,8 @@ def public_profile(request, id):
     serializer = UserProfileSerializer(user)
     return Response(serializer.data, status=status.HTTP_200_OK)
 
+
 # Get user profile
-
-
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def profile_detail(request):
@@ -162,7 +161,7 @@ def leave_game(request, pk):
     return Response({"message": "Left the game."}, status=status.HTTP_200_OK)
 
 
-# List all games (GET /api/games/)
+
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def game_list(request):
@@ -178,7 +177,7 @@ def game_list(request):
     return Response(serializer.data)
 
 
-# Create a new game (POST /api/games/create/)
+
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def game_create(request):
@@ -189,7 +188,6 @@ def game_create(request):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Cancel a game (POST /api/games/<pk>/cancel/)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def cancel_game(request, pk):
@@ -215,7 +213,6 @@ def game_detail(request, pk):
     return Response(serializer.data)
 
 
-# Update a game (PUT /api/games/<pk>/update/)
 @api_view(['PUT'])
 @permission_classes([IsAuthenticated])
 def game_update(request, pk):
@@ -232,7 +229,6 @@ def game_update(request, pk):
     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# Delete a game (DELETE /api/games/<pk>/delete/)
 @api_view(['DELETE'])
 @permission_classes([IsAuthenticated])
 def game_delete(request, pk):
@@ -255,8 +251,6 @@ def my_archived_games(request):
     serializer = GameSerializer(games, many=True)
     return Response(serializer.data)
 
-
-# Join a game (POST /api/games/<pk>/join/)
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def join_game(request, pk):
@@ -283,15 +277,12 @@ def join_game(request, pk):
     return Response({"message": "Successfully joined the game"}, status=status.HTTP_200_OK)
 
 
-# List all sports (GET /api/sports/)
 @api_view(['GET'])
 @permission_classes([AllowAny])
 def sport_list(request):
     sports = Sport.objects.all()
     serializer = SportSerializer(sports, many=True)
     return Response(serializer.data)
-
-
 
 @api_view(['GET','POST'])
 @permission_classes([IsAuthenticatedOrReadOnly])

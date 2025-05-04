@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, useLocation, Navigate, Outlet }
 import { useEffect, useState } from 'react';
 import Navigation from './components/Navigation';
 import Login from './components/Login';
-import Signup from './components/Signup';
 import Games from './components/Games';
 import CreateGame from './components/CreateGame';
 import GameDetail from './components/GameDetail';
@@ -29,7 +28,7 @@ function AppContent() {
       window.history.replaceState({}, document.title, location.pathname);
     }
   }, [location.search, location.pathname]);
-  const hideNavRoutes = ['/login', '/signup', '/', '/profile/setup'];
+  const hideNavRoutes = ['/login', '/', '/profile/setup'];
   const showNavigation = isLoggedIn && !hideNavRoutes.includes(location.pathname);
 
   return (
@@ -38,8 +37,6 @@ function AppContent() {
       <Routes>
         <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
-
         <Route element={<ProtectedRoute />}>
           <Route path="/games" element={<Games />} />
           <Route path="/games/:id" element={<GameDetail />} />

@@ -1,4 +1,3 @@
-// src/components/Profile.jsx
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -17,7 +16,7 @@ import '../index.css';
 
 export default function Profile() {
   const [profile, setProfile] = useState(null);
-  const [archived, setArchived] = useState(null); // null = loading, [] = loaded no games
+  const [archived, setArchived] = useState(null); 
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
@@ -50,8 +49,6 @@ export default function Profile() {
       mounted = false;
     };
   }, []);
-
-  // Global error state
   if (error) {
     return (
       <Container className="mt-4">
@@ -59,8 +56,6 @@ export default function Profile() {
       </Container>
     );
   }
-
-  // While profile is loading…
   if (!profile) {
     return (
       <Container className="text-center py-5">
@@ -103,8 +98,6 @@ export default function Profile() {
           )}
         </Card.Body>
       </Card>
-
-      {/* Accordion for Past Games */}
       <Accordion defaultActiveKey="0" className="mt-4 shadow-sm">
         <Accordion.Item eventKey="0">
           <Accordion.Header>

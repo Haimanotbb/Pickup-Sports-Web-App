@@ -1,4 +1,3 @@
-// ProfileSetup.js
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import API from '../api/api';
@@ -13,8 +12,6 @@ const ProfileSetup = () => {
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
-  // Fetch your existing profile and sport list
   useEffect(() => {
     // profile
     API.get('profile/')
@@ -28,7 +25,6 @@ const ProfileSetup = () => {
         });
       })
       .catch(() => console.error('Failed to load profile'));
-    // sports list
     API.get('sports/')
       .then(res => setSportsList(res.data))
       .catch(() => console.error('Failed to load sports'));
@@ -47,7 +43,6 @@ const ProfileSetup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      // include name + email now!
       await API.put('profile/update/', formData);
       navigate('/games');
     } catch {
@@ -100,7 +95,7 @@ const ProfileSetup = () => {
           />
         </div>
 
-        {/* Favorite Sports (unchanged) */}
+        {/* Favorite Sports*/}
         <div className="mb-3">
           <label htmlFor="favoriteSports" className="form-label">Favorite Sports:</label>
           <select

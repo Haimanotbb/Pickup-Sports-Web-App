@@ -39,8 +39,8 @@ class Game(models.Model):
     ]
 
     capacity = models.PositiveIntegerField(
-      null=True,      #"no limit”
-      blank=True,     #lets form leave it empty
+      null=True,      
+      blank=True,  
       help_text="Maximum number of participants; leave blank for unlimited"
     )
     @property

@@ -1,4 +1,3 @@
-// src/components/CreateGame.jsx
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -24,14 +23,13 @@ import '../index.css';
 
 export default function CreateGame() {
   const navigate = useNavigate();
-
-  // helper to translate JS Date → local “YYYY-MM-DDThh:mm”
   const getLocalDateTime = dt => {
     const tzOffset = dt.getTimezoneOffset() * 60000;
     return new Date(dt - tzOffset).toISOString().slice(0, 16);
   };
   const [minStart] = useState(getLocalDateTime(new Date()));
 
+  //User input form
   const [formData, setFormData] = useState({
     name: '',
     sport_id: '',
@@ -47,12 +45,14 @@ export default function CreateGame() {
   const [loadingSports, setLoadingSports] = useState(true);
   const [error, setError] = useState('');
 
+  //Make sure user is logged in
   useEffect(() => {
     if (!localStorage.getItem('token')) {
       navigate('/login');
     }
   }, [navigate]);
 
+  //Fetch sports data
   useEffect(() => {
     API.get('sports/')
       .then(({ data }) => setSports(data))
@@ -60,12 +60,14 @@ export default function CreateGame() {
       .finally(() => setLoadingSports(false));
   }, []);
 
+  //Handle form input changes
   const handleChange = e => {
     const { name, value } = e.target;
     setFormData(fd => ({ ...fd, [name]: value }));
     if (error) setError('');
   };
 
+  //Handle form submission
   const handleSubmit = async e => {
     e.preventDefault();
     setError('');
@@ -98,7 +100,6 @@ export default function CreateGame() {
 
           <Form onSubmit={handleSubmit}>
             <Row className="g-3">
-              {/* Game Name */}
               <Col md={6}>
                 <Form.Group controlId="gameName">
                   <Form.Label>Game Name</Form.Label>
@@ -112,8 +113,6 @@ export default function CreateGame() {
                   />
                 </Form.Group>
               </Col>
-
-              {/* Sport */}
               <Col md={6}>
                 <Form.Group controlId="sportSelect">
                   <Form.Label>Sport</Form.Label>
@@ -134,8 +133,6 @@ export default function CreateGame() {
                   )}
                 </Form.Group>
               </Col>
-
-              {/* Location */}
               <Col md={12}>
                 <Form.Group controlId="locationPicker">
                   <Form.Label>
@@ -151,8 +148,6 @@ export default function CreateGame() {
                   />
                 </Form.Group>
               </Col>
-
-              {/* Start Time */}
               <Col md={6}>
                 <Form.Group controlId="startTime">
                   <Form.Label>
@@ -169,8 +164,6 @@ export default function CreateGame() {
                   />
                 </Form.Group>
               </Col>
-
-              {/* End Time */}
               <Col md={6}>
                 <Form.Group controlId="endTime">
                   <Form.Label>
@@ -187,8 +180,6 @@ export default function CreateGame() {
                   />
                 </Form.Group>
               </Col>
-
-              {/* Capacity */}
               <Col md={6}>
                 <Form.Group controlId="capacity">
                   <Form.Label>
@@ -205,8 +196,6 @@ export default function CreateGame() {
                   />
                 </Form.Group>
               </Col>
-
-              {/* Skill Level */}
               <Col md={6}>
                 <Form.Group controlId="skillLevel">
                   <Form.Label>
@@ -225,8 +214,6 @@ export default function CreateGame() {
                   </Form.Select>
                 </Form.Group>
               </Col>
-
-              {/* Submit */}
               <Col md={12} className="text-end">
                 <Button type="submit" variant="primary">
                   Create Game

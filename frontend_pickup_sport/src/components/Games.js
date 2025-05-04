@@ -1,4 +1,3 @@
-// src/components/Games.jsx
 import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import {
@@ -212,8 +211,6 @@ export default function Games() {
             ))}
           </ul>
         </div>
-
-        {/* Other Filters */}
         {['name', 'sport', 'location'].map((field, i) => (
           <div key={i} className="col">
             <label htmlFor={`${field}Filter`} className="form-label text-secondary">
@@ -244,8 +241,6 @@ export default function Games() {
             onChange={handleFilterChange}
           />
         </div>
-
-        {/* Clear Filters Button */}
         <div className="col-auto text-end clear-btn-wrapper">
           <Button variant="outline-secondary" onClick={handleClearFilters}>
             Clear Filters
