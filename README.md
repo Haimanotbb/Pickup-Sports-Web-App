@@ -112,7 +112,7 @@ DATABASE_URL="postgresql://pickupdatabase_user:wEjhepLbpnqpu0qquxqSZU0vawVocmDK@
 
 ### Step 3: Set Up and Run Frontend 
 (from project root dir:)
-1. ```cd frontend_pickup_sports/src```
+1. ```cd frontend_pickup_sport/src```
 2. ```npm install```
 3. ```npm start```
 
