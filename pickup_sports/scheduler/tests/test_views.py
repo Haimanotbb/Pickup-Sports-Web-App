@@ -1,49 +1,13 @@
 from django.test import TestCase
-
-# Create your tests here.
-# scheduler/tests.py
-
-from django.test import TestCase
 from django.urls import reverse
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 from rest_framework.test import APIClient
 from rest_framework import status
 from datetime import timedelta
-
-from .models import Sport, Game, Participant
+from ..models import Sport, Game, Participant
 
 User = get_user_model()
-
-
-class GameModelTests(TestCase):
-    """
-    Tests for the Game.current_state() method.
-    """
-
-    def setUp(self):
-        # create a sport and a user
-        self.sport = Sport.objects.create(name="Soccer")
-        self.user = User.objects.create_user(username="alice", password="pw")
-
-    def test_current_state_open_and_completed(self):
-        # 1) Create a game that starts & ends in the future → state should be "Open"
-        future_start = timezone.now() + timedelta(hours=1)
-        game = Game.objects.create(
-            name="Future Game",
-            creator=self.user,
-            sport=self.sport,
-            location="Field",
-            start_time=future_start,
-            end_time=future_start + timedelta(hours=2),
-            skill_level="all",
-        )
-        self.assertEqual(game.current_state(), "Open")
-
-        # 2) Move end_time to past → state should be "Completed"
-        game.end_time = timezone.now() - timedelta(minutes=5)
-        game.save()
-        self.assertEqual(game.current_state(), "Completed")
 
 
 class GameAPITests(TestCase):
@@ -107,7 +71,8 @@ class GameAPITests(TestCase):
         # join once → 200 OK + Participant exists
         resp1 = self.client.post(join_url)
         self.assertEqual(resp1.status_code, status.HTTP_200_OK)
-        self.assertTrue(Participant.objects.filter(user=self.user, game=game).exists())
+        self.assertTrue(Participant.objects.filter(
+            user=self.user, game=game).exists())
 
         # join again → 400 Bad Request (already joined)
         resp2 = self.client.post(join_url)
@@ -117,7 +82,8 @@ class GameAPITests(TestCase):
         # leave → 200 OK + Participant removed
         resp3 = self.client.post(leave_url)
         self.assertEqual(resp3.status_code, status.HTTP_200_OK)
-        self.assertFalse(Participant.objects.filter(user=self.user, game=game).exists())
+        self.assertFalse(Participant.objects.filter(
+            user=self.user, game=game).exists())
 
     def test_cancel_and_delete_permissions(self):
         """

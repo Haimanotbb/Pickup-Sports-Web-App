@@ -39,16 +39,17 @@ class Game(models.Model):
     ]
 
     capacity = models.PositiveIntegerField(
-      null=True,      
-      blank=True,  
-      help_text="Maximum number of participants; leave blank for unlimited"
+        null=True,
+        blank=True,
+        help_text="Maximum number of participants; leave blank for unlimited"
     )
+
     @property
     def is_full(self):
         if self.capacity is None:
             return False
         return self.participants.count() >= self.capacity
-    
+
     name = models.CharField(max_length=200, blank=True)
     creator = models.ForeignKey(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='created_games')
@@ -71,7 +72,7 @@ class Game(models.Model):
 
     def __str__(self):
         return f"{self.sport} at {self.location} on {self.start_time.strftime('%Y-%m-%d %H:%M')}"
-    
+
     def current_state(self):
         now = timezone.now()
         if self.status == "cancelled":
@@ -86,16 +87,20 @@ class Game(models.Model):
                 return "In_progress"
             else:
                 return "Completed"
+
     class Meta:
         verbose_name_plural = "Games"
         ordering = ['start_time']
 
 
 class Comment(models.Model):
-    game    = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='comments')
-    author  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    text    = models.TextField()
-    created = models.DateTimeField(auto_now_add=True)   
+    game = models.ForeignKey(
+        Game, on_delete=models.CASCADE, related_name='comments')
+    author = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    text = models.TextField()
+    created = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return f"{self.author.username} on {self.game.id}"
 

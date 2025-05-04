@@ -15,6 +15,8 @@ from dotenv import load_dotenv
 
 import dj_database_url
 import os
+import sys
+from datetime import datetime
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -99,6 +101,7 @@ TEMPLATES = [
 WSGI_APPLICATION = "pickup_sports.wsgi.application"
 
 
+TEST_DB_NAME = os.environ.get('DJANGO_TEST_DB_NAME', 'test_pickupdatabase')
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
@@ -111,6 +114,8 @@ DATABASES = {
     )
 }
 
+if 'test' in sys.argv:
+    DATABASES['default']['NAME'] = TEST_DB_NAME
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
