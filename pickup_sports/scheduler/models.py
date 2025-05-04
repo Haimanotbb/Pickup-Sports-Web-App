@@ -4,6 +4,7 @@ from django.utils import timezone
 from django.contrib.auth.models import AbstractUser
 
 
+#User Table
 class CustomUser(AbstractUser):
     email = models.EmailField('email address', unique=True)
     name = models.CharField(max_length=100, blank=True)
@@ -18,6 +19,7 @@ class CustomUser(AbstractUser):
         db_table = 'users'
 
 
+#sport Table
 class Sport(models.Model):
     name = models.CharField(max_length=50)
 
@@ -25,6 +27,7 @@ class Sport(models.Model):
         return self.name
 
 
+#game Table
 class Game(models.Model):
     STATUS_CHOICES = [
         ('open', 'Open'),
@@ -91,6 +94,7 @@ class Game(models.Model):
         ordering = ['start_time']
 
 
+#comment Table
 class Comment(models.Model):
     game    = models.ForeignKey(Game, on_delete=models.CASCADE, related_name='comments')
     author  = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
@@ -100,6 +104,7 @@ class Comment(models.Model):
         return f"{self.author.username} on {self.game.id}"
 
 
+#Participant Table
 class Participant(models.Model):
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
