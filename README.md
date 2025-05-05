@@ -4,6 +4,22 @@ Y-Pickup is a web application designed to help students (or any group of users) 
 
 Link to presentation slides: https://gamma.app/docs/Y-Pickup-Campus-Pickup-Game-Scheduler-tjb785r18x2hsf8?mode=doc
 
+## Deviation from Original Project Proposal (in consultation with advisor)
+
+### Original Proposal Goals:
+1. Finalized RSVP and player matching system (based on skill level and availability)  
+2. Improved UI/UX for game creation and browsing  
+3. Nice-to-haves:
+   - Real-time updates for game hosts (e.g. who has joined, cancellations)
+   - Push notifications for RSVPs and game reminders  
+
+### Updated Goals:
+Since we will **not be implementing skill level–based features for users**, we are updating our scope as follows:
+
+1. Automatically changing game states (e.g. switching from **Open → In Progress → Completed/Cancelled** based on the timeline) and archiving past games in the **"My Games"** section of the user profile  
+2. Functionality to **edit and delete** games created by the user  
+3. Continued focus on **UI/UX improvements** and support for **custom game names** during game creation  
+
 __Scroll to the bottom for set-up instructions.__
 
 ## Features
