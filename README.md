@@ -79,6 +79,21 @@ __Scroll to the bottom for set-up instructions.__
 
 ⁠*Styling*: Bootstrap for responsive UI design.
 
+## Repository Structure
+
+In the root directory, subdirectory frontend_pickup_sport holds the React app front end client and pickup_sports holds our Django backend.
+
+### frontend_pickup_sport
+
+In src/components, you will see the main components that mostly represent different pages in our app, here are a few: Games.js (game discovery & search filters, includes polling w axios requests to update results in real time), CreateGame.js (game creation form), GameDetail.js (detailed, dynamic display of single game), LocationPicker.js (uses Google Maps to allow game creator to select lat./long. in user friendly way), etc.
+
+Dynamic game discovery + filtering to make a searchable, filterable list of games by sport, location, and time in the front end. Used React state hooks and polling + caching strategies to update fe in real time and avoids cold starts using cached state (frontend/src/components/Games.js).
+
+### pickup_sports
+
+The scheduler folder consists of models.py (Game, Sport, CustomUser, Comment), serializers.py (serializers for API data handling across client/server), views.py (core API logic for fetching all games, games with specific participant, details of a specific game, etc), urls.py (api endpoint routing).
+
+
 ## Setting up Evironment
 
 Follow these steps to run the web app locally
