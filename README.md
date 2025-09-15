@@ -106,16 +106,16 @@ Follow these steps to run the web app locally
 •⁠  ⁠Clone the repository to your local machine.
 
 ### Step 1: Set Up Env Files
-Our code uses database urls and apis in env files. For best practice, we did not push these to our remote repo.
+Our code uses database urls and apis in env files. For best practice, we did not push these to our remote repo, but the actual values of the env variables can accessed in this private doc with limited access (you may request access): https://docs.google.com/document/d/1iC9pU08PqUrFrakgYVY4W7ed7HMKEow6stbiWBMh4YY
 
 (from project root dir:)
 1. ```cd frontend_pickup_sport```
 
 2. ```touch .env.local```
 
-3. In this file, add the following line:
+3. In this file, add the following line with the value from the doc:
 ```
-REACT_APP_GOOGLE_MAPS_KEY=AIzaSyD-_4QqXFIIB-qBtZPtQdQvJXd2t8bbacg
+REACT_APP_GOOGLE_MAPS_KEY=
 ```
 (from project root dir:)
 
@@ -123,7 +123,7 @@ REACT_APP_GOOGLE_MAPS_KEY=AIzaSyD-_4QqXFIIB-qBtZPtQdQvJXd2t8bbacg
 
 5. ```touch .env```
 
-6. In that file, add the following line:
+6. In that file, add the following line with the value from the doc:
 ```
 DATABASE_URL="postgresql://pickupdatabase_user:wEjhepLbpnqpu0qquxqSZU0vawVocmDK@dpg-d00p2d49c44c73cipb80-a.virginia-postgres.render.com/pickupdatabase"
 ```
